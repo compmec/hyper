@@ -10,7 +10,7 @@ This repository contains the code used in the cours HYPER(Numerical Methods for 
 The non-linear mechanics is used when the hypothesis of small deformations is not valid. For exemple, we have the images below that shows when it's applied a big force in the center.
 
 
-![](https://github.com/carlos-adir/Non-linear-mechanics/img/LinearMechanics.png)
+![](https://github.com/carlos-adir/Non-linear-mechanics/blob/main/img/LinearMechanics.png)
 
 The main difference between the approachs are:
 
