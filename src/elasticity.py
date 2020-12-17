@@ -3,27 +3,7 @@
 # Data structures for hyperelastic constitutive models
 #
 """
-MNMNL Homework
-Module 4: Hyperelasticity
-complete code below where indicated by
-# ============
-# TODO:
-# ...
-# ============
-
-TODO:
-complete stress(), stiffness() and stress_stiffness() methods of StVenantKirchhoffElasticity
-and NeoHookeanElasticity class.
-
-stress:
-    return 2ND Piola Kirchhoff tensor (PK2) as a function of right Cauchy-Green tensor (C)
-sitffness:
-    return Material tangent operator (M) as a function of right Cauchy-Green tensor (C)
-stress_stiffness:
-    return 2ND Piola Kirchhoff tensor (PK2) and Material tangent operator (M) as
-    a function of right Cauchy-Green tensor (C). It can either use both previous methods or
-    rewrite PK2 and M (can save CPU time if same quantities are used in both computations)
-
+#Potential, stress, stiffness for St Venant Kirchhoff / Neo-Hookean models.
 WARNING:
 in FiniteElement.update(), (S,M) = material.stress_stiffness(C)
 --> stress_stiffness must be a function of right Cauchy Green tensor
