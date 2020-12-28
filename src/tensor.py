@@ -44,6 +44,12 @@ def det(A):
     """
     Compute determinant of a matrix/tensor
     """
+    if 1e-13 < np.abs(la.det(A)) < 1e-10:
+        print("A = ")
+        print(A)
+        print("detA = ")
+        print(la.det(A))
+        raise Exception("Not good")
     return la.det(A)
 
 
@@ -123,7 +129,7 @@ def II(d=2):
 def JJ(d=2):
     """
     Transpose fourth-order tensor
-        II1_ijkl = delta_il * delta_jk
+        JJ1_ijkl = delta_il * delta_jk
     If we have the tensor A, so
         A^T = JJ : A
     """
@@ -137,7 +143,7 @@ def JJ(d=2):
 def IISym(d=2):
     """
     Symmetrical identity fourth - order tensor:
-        IISym_ijkl: 1 / 2 * (delta_ik delta_jl + delta_il delta_jk)
+        IISym_ijkl = 1 / 2 * (delta_ik delta_jl + delta_il delta_jk)
     If we have the 2nd order tensor A:
         IISym : A = (A + A^T)/2
     """
@@ -167,4 +173,5 @@ def MaterialToLagrangian(F, S, M):
     """
     Compute Lagrangian tangent operator from material tensor and stress
     """
-    return "NOT IMPLEMENTED"
+    # raise Exception("MaterialToLagrangian: Not implemented")
+    return "not implemented"

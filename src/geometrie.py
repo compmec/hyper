@@ -41,18 +41,30 @@ class IPTri:
         P2 = (1, 0)
         P3 = (0, 1)
     """
-    # 1-pt rule
-    # X = [(1. / 3., 1 / 3.)]
-    # W = [1. / 2.]
-    #
-    # 3-pt rule
-    X = [(2 / 3, 1 / 6), (1 / 6, 1 / 6), (1 / 6, 2 / 3)]
-    W = [1 / 6, 1 / 6, 1 / 6]
-    #
-    # 4-pt rule
-    # X = [(1 / 3, 1 / 3), (3 / 5, 1 / 5),
-    #      (1 / 5, 1 / 5), (1 / 5, 3 / 5)]
-    # W = [-9/32, 25/96, 25/96, 25/96]
+    @staticmethod
+    def getX(npg=3):
+        if npg == 1:
+            X = [(1. / 3., 1 / 3.)]
+        elif npg == 3:
+            X = [(2 / 3, 1 / 6), (1 / 6, 1 / 6), (1 / 6, 2 / 3)]
+        elif npg == 4:
+            X = [(1 / 3, 1 / 3), (3 / 5, 1 / 5),
+                 (1 / 5, 1 / 5), (1 / 5, 3 / 5)]
+        else:
+            raise Exception("Not found npg = " + str(npg))
+        return X
+
+    @staticmethod
+    def getW(npg=3):
+        if npg == 1:
+            W = [1. / 2.]
+        elif npg == 3:
+            W = [1 / 6, 1 / 6, 1 / 6]
+        elif npg == 4:
+            W = [-9 / 32, 25 / 96, 25 / 96, 25 / 96]
+        else:
+            raise Exception("Not found npg = " + str(npg))
+        return W
 
 
 class IPQua:
@@ -64,23 +76,36 @@ class IPQua:
         P3 = ( 1,  1)
         P4 = (-1,  1)
     """
-    # 1 pt rule
-    # X = [(0, 0)]
-    # W = [4]
-    #
-    # 4-pt rule
-    a = 1 / np.sqrt(3)
-    X = [(-a, a), (-a, -a), (a, -a), (a, a)]
-    W = [1, 1, 1, 1]
-    #
-    # 9-pt rule
-    # b = np.sqrt(3/5)
-    # X = [(-b, b), (0, b), (b, b),
-    #      (-b, 0), (0, 0), (b, 0),
-    #      (-b, -b), (0, -b), (b, -b)]
-    # W = [25 / 81, 40 / 81, 25 / 81,
-    #      40 / 81, 64 / 81, 40 / 81,
-    #      25 / 81, 40 / 81, 25 / 81]
+
+    @staticmethod
+    def getX(npg=3):
+        if npg == 1:
+            X = [(0, 0)]
+        elif npg == 4:
+            a = 1 / np.sqrt(3)
+            X = [(-a, a), (-a, -a), (a, -a), (a, a)]
+        elif npg == 9:
+            b = np.sqrt(3 / 5)
+            X = [(-b, b), (0, b), (b, b),
+                 (-b, 0), (0, 0), (b, 0),
+                 (-b, -b), (0, -b), (b, -b)]
+        else:
+            raise Exception("Not found npg = " + str(npg))
+        return X
+
+    @staticmethod
+    def getW(npg=4):
+        if npg == 1:
+            W = [4]
+        elif npg == 4:
+            W = [1, 1, 1, 1]
+        elif npg == 9:
+            W = [25 / 81, 40 / 81, 25 / 81,
+                 40 / 81, 64 / 81, 40 / 81,
+                 25 / 81, 40 / 81, 25 / 81]
+        else:
+            raise Exception("Not found npg = " + str(npg))
+        return W
 
 
 ########################################################################
@@ -134,6 +159,13 @@ class SFT3:
         dN3 = [dN3_dx0, dN3_dx1]
         return [dN1, dN2, dN3]
 
+    @staticmethod
+    def P():
+        P1 = (0, 0)
+        P2 = (1, 0)
+        P3 = (0, 1)
+        return [P1, P2, P3]
+
 
 class SFT6:
     """
@@ -167,6 +199,16 @@ class SFT6:
         dN6 = [-4 * x[1], 4 * (1 - x[0] - 2 * x[1])]
         return [dN1, dN2, dN3, dN4, dN5, dN6]
 
+    @staticmethod
+    def P():
+        P1 = (0, 0)
+        P2 = (0.5, 0)
+        P3 = (1, 0)
+        P4 = (0.5, 0.5)
+        P5 = (0, 1)
+        P6 = (0, 0.5)
+        return [P1, P2, P3, P4, P5, P6]
+
 
 class SFQ4:
     """
@@ -192,6 +234,14 @@ class SFQ4:
         dN3 = [(x[1] + 1) / 4, (x[0] + 1) / 4]
         dN4 = [-(x[1] + 1) / 4, (1 - x[0]) / 4]
         return [dN1, dN2, dN3, dN4]
+
+    @staticmethod
+    def P():
+        P1 = (-1, -1)
+        P2 = (1, -1)
+        P3 = (1, 1)
+        P4 = (-1, 1)
+        return [P1, P2, P3, P4]
 
 
 class SFQ8:
@@ -234,3 +284,15 @@ class SFQ8:
                (x[0] - 1) * (x[0] - 2 * x[1]) / 4]
         dN8 = [(x[1]**2 - 1) / 2, x[1] * (x[0] - 1)]
         return [dN1, dN2, dN3, dN4, dN5, dN6, dN7, dN8]
+
+    @staticmethod
+    def P():
+        P1 = (-1, -1)
+        P2 = (0, -1)
+        P3 = (1, -1)
+        P4 = (1, 0)
+        P5 = (1, 1)
+        P6 = (0, 1)
+        P7 = (-1, 1)
+        P8 = (-1, 0)
+        return [P1, P2, P3, P4, P5, P6, P7, P8]

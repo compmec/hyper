@@ -52,11 +52,17 @@ class Element:
     def getType(self):
         return self.type
 
-    def nNodes(self):
+    def getNNodes(self):
         return len(self.nodes)
 
     def getNode(self, i):
         return self.nodes[i]
+
+    def getNodes(self):
+        return self.nodes
+
+    def nNodes(self):
+        return self.getNNodes()
 
 
 class MeshData:
@@ -69,42 +75,36 @@ class MeshData:
         self.elems = []  # list of all the elements in the mesh as Element instances
 
     def getDimension(self):
-        # =====================================================================
         # Returns the dimention of the Mesh
         return self.dim
+
+    def getDim(self):
+        return self.getDimension()
 
     def addNode(self, i, x, y=0., z=0.):
         self.nodes.append(Node(i, x, y, z))
 
     def getNode(self, i):
-        # =====================================================================
         return self.nodes[i]
-        # =====================================================================
 
-    def nNodes(self):
-        # =====================================================================
-        # TODO: return number of nodes in the mesh
+    def getNNodes(self):
         return len(self.nodes)
-        # =====================================================================
 
     def addElement(self, i, t, n):
-        # =====================================================================
-        # TODO: add element with label i, of type t, with list of nodes labels n
         new_element = Element(i, t, n)
-        return self.elems.append(new_element)
-        # =====================================================================
+        self.elems.append(new_element)
 
     def getElement(self, i):
-        # =====================================================================
-        # TODO: return element with label i
         return self.elems[i]
-        # =====================================================================
+
+    def getNElements(self):
+        return len(self.elems)
+
+    def nNodes(self):
+        return self.getNNodes()
 
     def nElements(self):
-        # =====================================================================
-        # TODO: return number of elements in the mesh
-        return len(self.elems)
-        # =====================================================================
+        return self.getNElements()
 
 
 if __name__ == "__main__":
