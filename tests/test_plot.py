@@ -12,7 +12,7 @@ try:
     import gmsh2 as gmsh
     import plot
 except ModuleNotFoundError:
-    print("Import file not found: tensor.py")
+    print("test_plot: Import file not found: tensor.py")
 
 
 class TUPlot(TU):

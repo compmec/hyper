@@ -1,39 +1,9 @@
 # -*- coding: utf-8 -*-
-#
-# Script to test implementation of the discrete residual
-#
-
 """
-MNMNL Homework
-Module 5: discretized residual
-
-This script tests your implementation of the discretized residual in fem.py module
-
-You will test two types of constitutive models:
-    - StVenantKirchhoff compressible material
-    - NeoHookean compressible material
-
-You will test two types of meshes:
-    - triangle-tri56.msh with 56 triangular elements
-    - triangle-quad44.msh with 44 quadrangular elements
-
-Compare your residual field with the solution given in the mesh files:
-    - triangle-tri56-ref.msh with 56 triangular elements
-    - triangle-quad44-ref.msh with 44 quadrangular elements
-compare_residual.geo script, that must be opened with Gmsh.
-
-WARNING: the reference solutions are only computed for the NeoHookean model !!!
 """
-#
-# --- namespace
-#
-# import numpy to create arrays (access numpy methods with np.method())
-# import elasticity.py (from previous homework)
-
-# import completed fem.py (to complete)
-
 
 try:
+    import sys
     import numpy as np
 except ModuleNotFoundError:
     print("The numpy library was not found")
@@ -47,30 +17,66 @@ except ModuleNotFoundError:
 try:
     TU.include_path("src")
     import gmsh2 as gmsh
-    import elasticity
     import fem
-except ModuleNotFoundError:
-    print("Import file not found: gmsh2.py")
+    import elasticity
+except ModuleNotFoundError as e:
+    error = str(e)
+    notimportedfilename = error.split("'")[1]
+    print("test_residual: Import file not found: " + str(notimportedfilename) + ".py")
+    sys.exit()
+
+# try:
+#     TU.include_path("msh")
+# except ModuleNotFoundError:
+#     print("Could not include the folder with the mesh examples")
 
 
 class TUResidual(TU):
 
-    FUNCTIONS = ["calculate_vectorfunction", "compute_residual",
-                 "compute_gradstress", "write_fields"]
+    FUNCTIONS = ["new_fileandmaterial", "create_model", "calculate_vectorfunction",
+                 "compute_gradstress", "compute_residual", "write_fields", "compare_results"]
 
-    def __init__(self, inputfilename, material):
-        self.filename = inputfilename
-        self.material = material
+    FILENAMES = ["../msh/triangle-tri56.msh",
+                 "../msh/triangle-quad44.msh", "../msh/triangle-quad44.msh"]
+    MATERIALS = [elasticity.StVenantKirchhoffElasticity,
+                 elasticity.NeoHookeanElasticity]
+
+    def __init__(self):
         super(TUResidual, self).__init__()
 
     def __setUp(self):
+        number_files = len(TUResidual.FILENAMES)
+        number_materials = len(TUResidual.MATERIALS)
+
+        TUResidual.FUNCTIONS *= number_materials * number_files
+        self.set_DEN()
+        self.n_mat = 0
+        self.n_fil = 0
+
+    def new_fileandmaterial(self):
+        if self.n_mat == 0:
+            E = 210.e9
+            nu = 0.3
+        else:
+            E = 10.e6
+            nu = 0.45
+        self.material = TUResidual.MATERIALS[self.n_mat](E, nu)
+        self.filename = TUResidual.FILENAMES[self.n_fil]
+
+        # We change the number to make the next test
+        self.n_fil += 1
+        if self.n_fil >= len(TUResidual.FILENAMES):
+            self.n_fil = 0
+            self.n_mat += 1
+
+    def create_model(self):
         meshfile = open(self.filename, 'r')
         self.mesh = gmsh.gmshInput_mesh(meshfile)
         meshfile.close()
 
-        nNodes = self.mesh.getNNodes()
-        nEleme = self.mesh.getNElements()
-        print("Read mesh with %d nodes and %d elements" % (nNodes, nEleme))
+        # nNodes = self.mesh.getNNodes()
+        # nEleme = self.mesh.getNElements()
+        # print("Read mesh with %d nodes and %d elements" % (nNodes, nEleme))
 
         self.FE_model = fem.FEModel(self.mesh, self.material)
 
@@ -92,28 +98,29 @@ class TUResidual(TU):
             Xi = Nodei.getX()
             self.U[i] = fct(Xi)
 
-    def compute_residual(self):
-        #
-        # -- compute residual array
-        #
-        # R = np.zeros((mesh.nNodes(), 2))
-        # FE_model.computeResidual(U, R)
-        self.R = self.FE_model.computeResidual(self.U)
-
     def compute_gradstress(self):
-        #
-        # -- get gradient and stress tensor fields
-        #
+        """
+        get gradient and stress tensor fields
+        """
+        # print("self.U = " + str(self.U))
         self.FE_model.computeStress(self.U)
 
         self.F = []
         self.P = []
         nElements = self.FE_model.getNElements()
         for n in range(nElements):
-            new_F = self.FE_model.getDeformationGradient(n)
             new_P = self.FE_model.getStressPK1(n)
+            new_F = self.FE_model.getDeformationGradient(n)
             self.F.append(new_F.flatten())
             self.P.append(new_P.flatten())
+
+    def compute_residual(self):
+        """
+        compute residual array
+        """
+        # R = np.zeros((mesh.nNodes(), 2))
+        # FE_model.computeResidual(U, R)
+        self.R = self.FE_model.computeResidual(self.U)
 
     def write_fields(self):
         outputfnam = self.filename.replace(".msh", "") + '-val.msh'
@@ -126,20 +133,23 @@ class TUResidual(TU):
         gmsh.gmshOutput_element(outfile, "engineering stress", self.P, 0, 0.0)
         outfile.close()
 
+    def compare_results(self):
+        """
+        Not completed, but it should make the comparation between the calculated results (put inside output file) and the reference results (inside reference file).
+        For the instant, we don't have a way to comparate the mesh.
+        """
+        output_filename = self.filename.replace(".msh", "") + '-val.msh'
+        reference_filename = self.filename.replace(".msh", "") + '-ref.msh'
+
+        reference_file = open(reference_filename, 'r')
+        self.reference_mesh = gmsh.gmshInput_mesh(reference_file)
+        reference_file.close()
+
+        output_file = open(output_filename, 'r')
+        self.output_mesh = gmsh.gmshInput_mesh(output_file)
+        output_file.close()
+
 
 if __name__ == "__main__":
-    msh_folder = "../msh/"
-    files = ["triangle-tri56.msh", "triangle-quad44.msh"]
-    for i in range(2):
-        if i == 0:
-            E = 210.e9
-            nu = 0.3
-            mat_model = elasticity.StVenantKirchhoffElasticity(E, nu)
-        elif i == 1:
-            E = 10.e6
-            nu = 0.45
-            mat_model = elasticity.NeoHookeanElasticity(E, nu)
-        for file in files:
-            inputfilename = msh_folder + file
-            test = TUResidual(inputfilename, mat_model)
-            test.run()
+    test = TUResidual()
+    result = test.run()

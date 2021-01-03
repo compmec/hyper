@@ -8,21 +8,25 @@ except ModuleNotFoundError:
 
 try:
     TU.include_path("src")
-    import geometrie
-except ModuleNotFoundError:
-    print("Import file not found: tensor.py")
+    import geometry
+except ModuleNotFoundError as e:
+    error = str(e)
+    notimportedfilename = error.split("'")[1]
+    print("test_geometry: Import file not found: " +
+          str(notimportedfilename) + ".py")
+    sys.exit()
 
 
-class TUGeometrie(TU):
+class TUGeometry(TU):
     """
-    Class for testing the geometrie module
+    Class for testing the geometry module
     """
 
     # FUNCTIONS = ["T3", "T6", "Q4", "Q8"]
     FUNCTIONS = ["T3"]
 
     def __init__(self):
-        super(TUGeometrie, self).__init__()
+        super(TUGeometry, self).__init__()
 
     @staticmethod
     def test_interpolation(points, N):
@@ -54,16 +58,16 @@ class TUGeometrie(TU):
 
     @staticmethod
     def T3():
-        N = geometrie.SFT3.N
-        dN = geometrie.SFT3.dN
-        P = geometrie.SFT3.P
+        N = geometry.SFT3.N
+        dN = geometry.SFT3.dN
+        P = geometry.SFT3.P
         points = P()
         interp = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
         deriva = [((-1, -1), (1, 0), (0, 1)),
                   ((-1, -1), (1, 0), (0, 1)),
                   ((-1, -1), (1, 0), (0, 1))]
-        TUGeometrie.test_interpolation(points, N)
-        TUGeometrie.test_derivative(points, dN)
+        TUGeometry.test_interpolation(points, N)
+        TUGeometry.test_derivative(points, dN)
 
         # n = len(points)
         # for i, p in enumerate(points):
@@ -80,5 +84,5 @@ class TUGeometrie(TU):
 
 
 if __name__ == "__main__":
-    test = TUGeometrie()
+    test = TUGeometry()
     test.run()

@@ -19,8 +19,6 @@ You will test two types of meshes (with two refinements):
 Compare your nodal and element fields with the anaylitical solution you have
 found in the exercise.
 """
-
-
 try:
     import sys
     import numpy as np
@@ -40,25 +38,49 @@ try:
 except ModuleNotFoundError as e:
     error = str(e)
     notimportedfilename = error.split("'")[1]
-    print("Import file not found: " + str(notimportedfilename) + ".py")
+    print("test_fem: Import file not found: " + str(notimportedfilename) + ".py")
     sys.exit()
+
+# try:
+#     TU.include_path("msh")
+# except ModuleNotFoundError:
+#     print("Could not include the folder with the mesh examples")
 
 
 class TUFem(TU):
 
-    FUNCTIONS = ["create_nodalarray", "compute_deformation",
+    FUNCTIONS = ["new_file", "read_mesh", "create_nodalarray", "compute_deformation",
                  "write_scalarfields", "write_tensorfields"]
 
-    def __init__(self, inputfilename):
-        self.filename = inputfilename
+    FILENAMES = ["../msh/triangle-tri14.msh", "../msh/triangle-tri56.msh",
+                 "../msh/triangle-quad11.msh", "../msh/triangle-quad44.msh"]
+
+    def __init__(self):
         super(TUFem, self).__init__()
 
     def __setUp(self):
+        number_files = len(TUFem.FILENAMES)
+        TUFem.FUNCTIONS *= number_files
+        self.set_DEN()
+        self.n_fil = 0
+
+    def new_file(self):
+        """
+        This function is responsable for changing the self.filename to make more tests. That is, to self.filename not be fix.
+        It changes between all the files in TUMesh.FILENAMES
+        """
+        self.filename = TUFem.FILENAMES[self.n_fil]
+
+        # We change the number to make the next test
+        self.n_fil += 1
+
+    def read_mesh(self):
         meshfile = open(self.filename, 'r')
         self.mesh = gmsh.gmshInput_mesh(meshfile)
         meshfile.close()
-        print("Read mesh with %d nodes and %d elements" %
-              (self.mesh.nNodes(), self.mesh.nElements()))
+        # nNodes = self.mesh.getNNodes()
+        # nEleme = self.mesh.getNElements()
+        # print("Read mesh with %d nodes and %d elements" % (nNodes, nEleme))
 
     def create_nodalarray(self):
         #
@@ -117,23 +139,5 @@ def fct(x):
 
 
 if __name__ == "__main__":
-
-    #
-    # --- read mesh from Gmsh file
-    #
-    msh_folder = "../msh/"
-
-    files = ["triangle-tri14", "triangle-tri56",
-             "triangle-quad11", "triangle-quad44"]
-    for basefile in files:
-        inputfilename = msh_folder + basefile + ".msh"
-        test = TUFem(inputfilename)
-        test.run()
-
-    #
-    # --- open Gmsh output file
-    #
-
-    #
-    # --- write tensor fields to gmsh output file
-    #
+    test = TUFem()
+    test.run()

@@ -1,30 +1,5 @@
 # -*- coding: utf-8 -*-
-#
-# Script to test consitutive models implemented in
-#
-
-
 """
-MNMNL Homework
-Module 4: stress tensor field on a mesh
-
-This script tests your implementation of the elasticity.py module with numerical
-differentiation of the elastic potential for the Piola-Kirchhoff II stress
-tensor S and of the stress for the material tangent operator M.
-
-You will test two types of constitutive models:
-    - StVenantKirchhoff compressible material
-    - NeoHookean compressible material
-
-You will test two types of meshes (with two refinements):
-    - triangle-tri(14,56).msh with 14 and 56 triangular elements respectively
-    - meshfile-quad(11,44).msh with 11 and 44 quadrangular elements respectively
-
-You can also compare your stress tensor field with the anaylitical solution you
-can derive from the exercise.
-
-WARNING: THERE IS NOTHING TO COMPLETE HERE ! YOU MUST COMPLETE M4__elasticity_template.py
-Simply comment/uncomment meshfiles (lines 51-54) and constitutive models (lines 66-67)
 """
 
 
@@ -49,34 +24,62 @@ try:
 except ModuleNotFoundError as e:
     error = str(e)
     notimportedfilename = error.split("'")[1]
-    print("Import file not found: " + str(notimportedfilename) + ".py")
+    print("test_elasticity: Import file not found: " + str(notimportedfilename) + ".py")
     sys.exit()
 
-try:
-    TU.include_path("msh")
-except ModuleNotFoundError:
-    print("Could not include the folder with the mesh examples")
+# try:
+#     TU.include_path("msh")
+# except ModuleNotFoundError:
+#     print("Could not include the folder with the mesh examples")
 
 
 class TUElasticity(TU):
 
-    FUNCTIONS = ["create_nodalarray", "compute_stresstensorfield",
+    FUNCTIONS = ["new_fileandmaterial", "create_model", "create_nodalarray", "compute_stresstensorfield",
                  "write_fields", "compute_stress", "compute_materialtangent"]
 
-    def __init__(self, inputfilename, material):
-        self.filename = inputfilename
-        self.material = material
+    FILENAMES = ["../msh/triangle-tri14.msh", "../msh/triangle-tri56.msh",
+                 "../msh/triangle-quad11.msh", "../msh/triangle-quad44.msh"]
+    MATERIALS = [elasticity.StVenantKirchhoffElasticity,
+                 elasticity.NeoHookeanElasticity]
+
+    def __init__(self):
         super(TUElasticity, self).__init__()
 
     def __setUp(self):
+        number_files = len(TUElasticity.FILENAMES)
+        number_materials = len(TUElasticity.MATERIALS)
+
+        TUElasticity.FUNCTIONS *= number_materials * number_files
+        self.set_DEN()
+        self.n_mat = 0
+        self.n_fil = 0
+
+    def new_fileandmaterial(self):
+        if self.n_mat == 0:
+            E = 210.e9
+            nu = 0.3
+        else:
+            E = 10.e6
+            nu = 0.45
+        self.material = TUElasticity.MATERIALS[self.n_mat](E, nu)
+        self.filename = TUElasticity.FILENAMES[self.n_fil]
+
+        # We change the number to make the next test
+        self.n_fil += 1
+        if self.n_fil >= len(TUElasticity.FILENAMES):
+            self.n_fil = 0
+            self.n_mat += 1
+
+    def create_model(self):
         meshfile = open(self.filename, 'r')
         self.mesh = gmsh.gmshInput_mesh(meshfile)
         meshfile.close()
 
-        print("Read mesh with %d nodes and %d elements" %
-              (self.mesh.nNodes(), self.mesh.nElements()))
+        # nNodes = self.mesh.getNNodes()
+        # nEleme = self.mesh.getNElements()
+        # print("Read mesh with %d nodes and %d elements" % (nNodes, nEleme))
 
-        # Create FE Model
         self.FE_model = fem.FEModel(self.mesh, self.material)
 
     def create_nodalarray(self):
@@ -226,25 +229,5 @@ class TUElasticity(TU):
 
 
 if __name__ == "__main__":
-
-    msh_folder = "../msh/"
-    files = ["triangle-tri14.msh", "triangle-tri56.msh",
-             "triangle-quad11.msh", "triangle-quad44.msh"]
-    materials = [elasticity.StVenantKirchhoffElasticity,
-                 elasticity.NeoHookeanElasticity]
-
-    for i in range(len(materials)):
-        for j in range(len(files)):
-            print("##############################")
-            print("#   Test Material Number " + str(i + 1) + "   #")
-            print("#   Test File Number " + str(j + 1) + "       #")
-            print("##############################")
-
-            E = 210.e9  # Pa
-            nu = 0.3
-            mat = materials[i](E, nu)
-            filename = msh_folder + files[j]
-            test = TUElasticity(filename, mat)
-            result = test.run()
-            if result == test.FAILURE:
-                break
+    test = TUElasticity()
+    test.run()

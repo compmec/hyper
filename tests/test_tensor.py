@@ -17,7 +17,7 @@ try:
     TU.include_path("src")
     import tensor
 except ModuleNotFoundError:
-    print("Import file not found: tensor.py")
+    print("test_tensor: Import file not found: tensor.py")
 
 
 class TUTensor(TU):
