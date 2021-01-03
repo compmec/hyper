@@ -62,12 +62,12 @@ class StVenantKirchhoffElasticity(Elasticity):
         Compute material tangent M = 2*dS/dC
         """
         d = len(C)
-        lamdada = self.prop["1ST_lamdaE_CONSTANT"]
+        lamda = self.prop["1ST_lamdaE_CONSTANT"]
         mu = self.prop["2ND_lamdaE_CONSTANT"]
         I = tensor.I(d)
         IxI = tensor.outerProd4(I, I)
         IIsym = tensor.IISym(d)
-        M = lamdada * IxI + 2 * mu * IIsym
+        M = lamda * IxI + 2 * mu * IIsym
         return M
 
 
@@ -111,11 +111,11 @@ class NeoHookeanElasticity(Elasticity):
         """
         d = len(C)
         lnJ = np.log(np.sqrt(tensor.det(C)))
-        lamdada = self.prop["1ST_lamdaE_CONSTANT"]
+        lamda = self.prop["1ST_lamdaE_CONSTANT"]
         mu = self.prop["2ND_lamdaE_CONSTANT"]
         invC = tensor.inv(C)
         invCC = tensor.outerProd4(invC, invC)
-        terme1 = lamdada * invCC
+        terme1 = lamda * invCC
         dinvC = tensor.tensor4(d)
         for i in range(d):
             for j in range(d):
@@ -125,13 +125,5 @@ class NeoHookeanElasticity(Elasticity):
                         part2 = invC[i, l] * invC[j, k]
                         dinvC[i, j, k, l] = -(part1 + part2) / 2
 
-        M = lamdada * invCC + 2 * (lamdada * lnJ - mu) * dinvC
+        M = lamda * invCC + 2 * (lamda * lnJ - mu) * dinvC
         return M
-
-    def stress_stiffness(self, C):
-        """
-        Compute 2nd Piola-Kirchhoff stress and material tangent at the same time
-        """
-        PK2 = self.stress(C)
-        M = self.stiffness(C)
-        return (PK2, M)

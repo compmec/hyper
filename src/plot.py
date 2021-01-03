@@ -7,6 +7,7 @@ except ModuleNotFoundError:
 
 try:
     import gmsh2 as gmsh
+    import geometry
 except ModuleNotFoundError:
     print("Import file not found: gmsh2.py")
 

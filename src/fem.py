@@ -5,10 +5,9 @@
 
 
 import numpy as np
-import geometrie
-from scipy.linalg import polar
-
 import tensor
+import geometry
+from scipy.linalg import polar
 
 
 ########################################################################
@@ -30,15 +29,15 @@ class FiniteElement:
             npg = 3  # Number of integration points
             npN = 3  # Number of nodes in the element
             dim = 2
-            IP = geometrie.IPTri  # class to get Integration Info
-            Shape = geometrie.SFT3  # Function to get N(X) et dN(X)
+            IP = geometry.IPTri  # class to get Integration Info
+            Shape = geometry.SFT3  # Function to get N(X) et dN(X)
 
         if t == 3:  # square Q4 (1 int. pt.)
             npg = 4  # Number of integration points
             npN = 4  # Number of nodes in the element
             dim = 2
-            IP = geometrie.IPQua  # class to get Integration Info
-            Shape = geometrie.SFQ4  # Function to get N(X) et dN(X)
+            IP = geometry.IPQua  # class to get Integration Info
+            Shape = geometry.SFQ4  # Function to get N(X) et dN(X)
 
         X = IP.getX(npg)
         W = IP.getW(npg)
@@ -54,7 +53,6 @@ class FiniteElement:
             #     xn = xNod[n][:dim]
             #     dshapein = dshapei[n]
             #     J += tensor.outerProd(xn, dshapein)
-            #     # print("    n = " + str(n) + " - detJ = " + str(dettempJ))
             detJ = tensor.det(J)
             Jinv = tensor.inv(J)
             dshapei = np.dot(dshapei, Jinv)
@@ -172,28 +170,15 @@ class FiniteElement:
         nNodes = self.getNNodes()
         dim = self.getDim()
         fNod = np.zeros((nNodes, dim))
-
         # dshape = (npg, npN, dim)
         #   npg is the number of gauss points to integration
         #   npN is the number of nodes in each element
         #   dim is the dimention of the problem. If 2D -> dim = 2
         for i in range(npg):
-
             PK1i = self.PK1[i]
-            # print("PK1i = ")
-            # print(PK1i)
             dshapei = self.dshape[i]
             weighti = self.weight[i]
-            # print("PK1i = ")
-            # print(PK1i)
-            # print("dshapei = ")
-            # print(dshapei)
             fNod += weighti * dshapei @ PK1i
-            # print("dF = ")
-            # print(dF)
-            #  shape = (number of nodes per element, space dimension)
-
-            # raise Exception("computeForces: Not implemented")
         return fNod
 
     # def computeStiffness(self, KNod):
@@ -207,14 +192,7 @@ class FiniteElement:
         for i in range(npg):
             Ki = self.K[i]
             shapei = self.shape[i]
-            # print("PK1i = ")
-            # print(PK1i)
-            # print("dshapei = ")
-            # print(dshapei)
             KNod += weighti * Ki @ shapei
-            # print("dF = ")
-            # print(dF)
-        # raise Exception("computeStiffness: Not implemented")
         return KNod
 
 
@@ -269,16 +247,15 @@ class FEModel:
     def nElements(self):
         return self.getNElements()
 
-    def assemble2(self, e, vNod, V):
+    def assemble2(self, e, vNod):
         """
         Assemble nodal values for element e, 2-entry array
         """
-        # print("V = ")
-        # print(V)
-        self.Tint[vNod, :] += V[:, :]
+        loc = self.connect[e]
+        self.Tint[loc, :] += vNod[:, :]
         # raise Exception("assemble2: Not implemented")
 
-    def assemble4(self, e, KNod, K):
+    def assemble4(self, e, KNod):
         """
         Assemble nodal values for element e, 4-entry array
         """
@@ -312,11 +289,8 @@ class FEModel:
             uNod = self.extract(U, e)
             elem = self.elems[e]
             elem.update(uNod, self.material)
-        for e in range(nElements):
-            elem = self.elems[e]
-            vNod = self.connect[e]
-            V = elem.computeForces()
-            self.assemble2(e, vNod, V)
+            vNod = elem.computeForces()
+            self.assemble2(e, vNod)
         # print("Tint = ")
         # print(self.Tint)
         return self.Tint
