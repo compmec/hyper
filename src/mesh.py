@@ -21,10 +21,13 @@ And we are going to use it futher
 class Node:
     """Basic data structure for nodes"""
 
-    def __init__(self, i, x, y, z):
+    def __init__(self, i, x, y, z=None, dim=2):
         """Create node of label i and coordinates (x,y,z)"""
         self.id = i
-        self.X = (x, y, z)
+        if dim == 2 or z is None:
+            self.X = (x, y)
+        else:
+            self.X = (x, y, z)
 
     def getID(self):
         return self.id
