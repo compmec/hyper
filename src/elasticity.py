@@ -7,6 +7,8 @@ import numpy as np
 class Elasticity:
     """
     Data structure for (isotropic) hyperelaticity models
+    1ST_lamdaE_CONSTANT is the frist lamé parameter lambda
+    2ST_lamdaE_CONSTANT is the second lamé parameter mu
     """
     prop = dict()
 
@@ -26,6 +28,12 @@ class Elasticity:
         PK2 = self.stress(C)
         M = self.stiffness(C)
         return (PK2, M)
+
+    def get1LAME(self):
+        return self.prop["1ST_lamdaE_CONSTANT"]
+
+    def get2LAME(self):
+        return self.prop["2ND_lamdaE_CONSTANT"]
 
 
 class StVenantKirchhoffElasticity(Elasticity):
@@ -74,6 +82,7 @@ class StVenantKirchhoffElasticity(Elasticity):
 class NeoHookeanElasticity(Elasticity):
 
     def __init__(self, E, nu):
+        # self.VERBOSE = True
         super(NeoHookeanElasticity, self).__init__(E, nu)
 
     def potential(self, C):
@@ -93,6 +102,7 @@ class NeoHookeanElasticity(Elasticity):
         """
         Compute 2nd Piola-Kirchhoff stress
         """
+
         d = len(C)
         PK2 = tensor.tensor(d)
         detC = tensor.det(C)
@@ -103,6 +113,23 @@ class NeoHookeanElasticity(Elasticity):
         invC = tensor.inv(C)
         I = tensor.I(d)
         PK2 = mu * (I - invC) + lamda * lnJ * invC
+
+        # if self.VERBOSE:
+        #     print("C = ")
+        #     print(C)
+        #     print("lamda = %e" % lamda)
+        #     print("mu = %e" % mu)
+        #     print("detC = " + str(detC))
+        #     print("detF = " + str(detF))
+        #     print("lnJ = " + str(lnJ))
+        #     print("invC = ")
+        #     print(invC)
+
+        #     print("I-invC = ")
+        #     print(I - invC)
+        #     print("PK2 = ")
+        #     print(PK2 / 1e+6)
+        # self.VERBOSE = False
         return PK2
 
     def stiffness(self, C):
@@ -126,4 +153,6 @@ class NeoHookeanElasticity(Elasticity):
                         dinvC[i, j, k, l] = -(part1 + part2) / 2
 
         M = lamda * invCC + 2 * (lamda * lnJ - mu) * dinvC
+        # print("M = ")
+        # print(M / 1e+6)
         return M

@@ -79,20 +79,26 @@ def rightCauchyGreen(F):
     """
     Compute right Cauchy-Green tensor from deformation gradient
     """
-    return np.dot(np.transpose(F), F)
+    FT = np.transpose(F)
+    C = np.dot(FT, F)
+    return C
 
 
 def leftCauchyGreen(F):
     """
     Compute left Cauchy-Green tensor from deformation gradient
     """
-    return np.dot(F, np.transpose(F))
+    b = np.dot(F, np.transpose(F))
+    return b
 
 
 def PK2toPK1(F, S):
     """
     Compute Piola stress tensor from second Piola-Kirchhoff stress
     """
+    # FT = np.transpose(F)
+    if not check_symmetric(S):
+        raise Exception("S is not symmetrical")
     return np.dot(F, S)
 
 
@@ -100,7 +106,12 @@ def PK1toCauchy(F, P):
     """
     Compute Cauchy stress tensor from first Piola-Kirchhoff stress
     """
-    return np.dot(P, np.transpose(F))
+    FT = np.transpose(F)
+    return np.dot(P, FT)
+
+
+def check_symmetric(a, rtol=1e-05, atol=1e-08):
+    return np.allclose(a, a.T, rtol=rtol, atol=atol)
 
 ###############################################################################
 #                             4th Order Tensors                               #
@@ -172,6 +183,43 @@ def outerProd4(a, b):
 def MaterialToLagrangian(F, S, M):
     """
     Compute Lagrangian tangent operator from material tensor and stress
+    (partial P/partial F)_{iJkL} = delta_{ik}*S_{JL} + F_{iI}*M_{IJKL}*F_{kK}
     """
+    d, _ = F.shape
+    dPdF = tensor4(d)
+    # print("F = " + str(F.shape))
+    # print("S = " + str(S.shape))
+    # print("M = " + str(M.shape))
+
+    # value1 = np.einsum('iI,IJKL,kK->iJkL', F, M, F)
+    dPdF += np.einsum('iI,IJKL,kK->iJkL', F, M, F)
+    # ident = np.eye(d)
+    # w = outerProd4(ident, S)
+    dPdF += np.einsum("ik,JL->iJkL", np.eye(d), S)
+
+    # value1 = np.einsum("ik,JL->iJkL", np.eye(d), S)
+    # w = outerProd4(np.eye(d), S)
+    # value2 = tensor4(d)
+    # # for i in range(d):
+    # #     for k in range(d):
+    # #         for J in range(d):
+    # #             for L in range(d):
+    # #                 for I in range(d):
+    # #                     for K in range(d):
+    # #                         value2[i, J, k, L] += F[i, I] * \
+    # #                             M[I, J, K, L] * F[k, K]
+    # # print("S = ")
+    # # print(S)
+    # for i in range(d):
+    #     for J in range(d):
+    #         for L in range(d):
+    #             for k in range(d):
+    #                 if i == k:
+    #                     value2[i, J, k, L] += w[i, k, J, L]
+
+    # raise Exception("Stop")
+
+    # Result = np.einsum('ji,j->ji',A,b)
+    return dPdF
     # raise Exception("MaterialToLagrangian: Not implemented")
-    return "not implemented"
+    # return "not implemented"

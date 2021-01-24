@@ -9,18 +9,13 @@ from test_residual import TUResidual
 
 
 if __name__ == "__main__":
-    TU.VERBOSE = True
-    test = TUTensor()
-    test.run()
-    test = TUMesh()
-    test.run()
-    test = TUGeometry()
-    test.run()
-    test = TUPlot()
-    test.run()
-    test = TUFem()
-    test.run()
-    test = TUElasticity()
-    test.run()
-    test = TUResidual()
-    test.run()
+    TU.VERBOSE = False
+    TUClasses = [TUTensor, TUMesh, TUGeometry,
+                 TUPlot, TUFem, TUElasticity, TUResidual, test_tangent]
+    counter = 0
+    for TUclass in TUClasses:
+        test = TUclass()
+        result = test.run()
+        if result == TU.SUCESS:
+            counter += 1
+    print("Sucess: [%d/%d] " % (counter, len(TUClasses)))

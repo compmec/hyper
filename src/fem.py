@@ -20,6 +20,31 @@ class FiniteElement:
     """
 
     def __init__(self, t, xNod):
+
+        #
+        # --- initialise mechanical tensors at each integration point
+        #
+        self.calculate_shapes(t, xNod)
+
+        self.F = []        # deformation gradient F = Grad(u) + I
+        self.hencky = []   # hencky strain ln(V) with F = V.R
+        self.E_GL = []     # lagrangian strain E = 1/2 (C - I)
+        self.E_EA = []     # E_EA strain e = 1/2 (I - b^-1)
+        self.PK1 = []      # piola kirchoff I : P = F*S
+        self.sigma = []    # cauchy stress : \sigma
+        self.K = []        # lagrangian tangent operator dP/dF
+        d = self.getDim()  # space dimension
+        npg = self.getNIntPts()
+        for n in range(npg):
+            self.F.append(tensor.tensor(d))
+            self.hencky.append(tensor.tensor(d))
+            self.E_GL.append(tensor.tensor(d))
+            self.E_EA.append(tensor.tensor(d))
+            self.PK1.append(tensor.tensor(d))
+            self.sigma.append(tensor.tensor(d))
+            self.K.append(tensor.tensor4(d))
+
+    def calculate_shapes(self, t, xNod):
         self.type = t
         self.shape = []
         self.dshape = []
@@ -61,27 +86,6 @@ class FiniteElement:
             self.dshape.append(dshapei)
             self.weight.append(weighti)
 
-        #
-        # --- initialise mechanical tensors at each integration point
-        #
-        self.F = []        # deformation gradient F = Grad(u) + I
-        self.hencky = []   # hencky strain ln(V) with F = V.R
-        self.E_GL = []     # lagrangian strain E = 1/2 (C - I)
-        self.E_EA = []     # E_EA strain e = 1/2 (I - b^-1)
-        self.PK1 = []      # piola kirchoff I : P = F*S
-        self.sigma = []    # cauchy stress : \sigma
-        self.K = []        # lagrangian tangent operator dP/dF
-        d = self.getDim()  # space dimension
-        npg = self.getNIntPts()
-        for n in range(npg):
-            self.F.append(tensor.tensor(d))
-            self.hencky.append(tensor.tensor(d))
-            self.E_GL.append(tensor.tensor(d))
-            self.E_EA.append(tensor.tensor(d))
-            self.PK1.append(tensor.tensor(d))
-            self.sigma.append(tensor.tensor(d))
-            self.K.append(tensor.tensor4(d))
-
     def getNpg(self):
         return np.shape(self.dshape)[0]
 
@@ -102,9 +106,10 @@ class FiniteElement:
         # TODO: compute the gradient of the displacement field from the local
         # nodal field 'uNod' and the shape functions 'dShp' (20pts)
         # ...
-        uNod = np.array(uNod)
-        dShp = np.transpose(dShp)
-        grad = np.dot(dShp, uNod)
+        # np.dot(np.transpose(uNod),dShp)
+        uNod = np.transpose(np.array(uNod))
+        # dShp = np.transpose(dShp
+        grad = np.dot(uNod, dShp)
         return grad
         # =====================================================================
 
@@ -121,14 +126,8 @@ class FiniteElement:
         npg = self.getNpg()
         for i in range(npg):  # loop on integration points
             # compute CG stretch tensor and GL strain tensor
-            # print("uNod = ")
-            # print(uNod)
-            # print("dshapei = ")
-            # print(self.dshape[i])
             G = self.gradient(self.dshape[i], uNod)
             F = G + tensor.I(len(G))
-            # print("G = ")
-            # print(G)
             self.F[i] = F  # store deformation gradient at integration point i
             C = tensor.rightCauchyGreen(F)
             self.E_GL[i] = 0.5 * (C - tensor.I(len(C)))
@@ -138,23 +137,26 @@ class FiniteElement:
             # replace pure zeros by very low values to prevent "nan" in np.log(V)
             V[V < 1e-10] = 1e-15
             self.hencky[i] = np.log(V)  # ln(V) with F = V.R, "true" strain
-            # print("F = ")
-            # print(F)
             b = tensor.leftCauchyGreen(F)
             self.E_EA[i] = 0.5 * (tensor.I(len(b)) - tensor.inv(b))
             ###
             if (mater == 0):  # skip next lines: do not compute stress
+                # print("Whahat")
                 continue
             # compute PK2 stress tensor and material tangent operator M=2*dS/dC
             # print("type(mater) = " + str(type(mater)))
             # print("mater = " + str(mater))
+
             (PK2, M) = mater.stress_stiffness(C)
+
             # compute PK1 stress and lagrangian tangent operator K = dP/dF
             # print("PK2 = ")
             # print(PK2)
             # print("F = ")
             # print(F)
             self.PK1[i] = tensor.PK2toPK1(F, PK2)
+            # print("PK1[i] = ")
+            # print(self.PK1[i])
             # print("PK1[i] = ")
             # print(self.PK1[i])
             self.K[i] = tensor.MaterialToLagrangian(F, PK2, M)
@@ -175,10 +177,11 @@ class FiniteElement:
         #   npN is the number of nodes in each element
         #   dim is the dimention of the problem. If 2D -> dim = 2
         for i in range(npg):
-            PK1i = self.PK1[i]
+            PK1i = np.transpose(self.PK1[i])
             dshapei = self.dshape[i]
             weighti = self.weight[i]
             fNod += weighti * dshapei @ PK1i
+        # print("fNod = " + str(fNod))
         return fNod
 
     # def computeStiffness(self, KNod):
@@ -186,13 +189,15 @@ class FiniteElement:
         """
         compute internal stiffness of the element
         """
+        npg = self.getNpg()
         nNodes = self.getNNodes()
         dim = self.getDim()
         KNod = np.zeros((nNodes, dim, nNodes, dim))
-        for i in range(npg):
-            Ki = self.K[i]
-            shapei = self.shape[i]
-            KNod += weighti * Ki @ shapei
+        for ind in range(npg):
+            Ki = self.K[ind]
+            wi = self.weight[ind]
+            dshi = self.dshape[ind]
+            KNod += wi * np.einsum("iw,jwlz,kz->ijkl", dshi, Ki, dshi)
         return KNod
 
 
@@ -205,7 +210,7 @@ class FEModel:
         self.dim = theMesh.getDimension()  # mesh dimension
         self.elems = []  # list of FiniteElement instances
         self.connect = []  # table of connectivity (list of list)
-        self.nnode = theMesh.getNNodes()  # Number of nodes in the mesh
+        self.nNodes = theMesh.getNNodes()  # Number of nodes in the mesh
         self.nelem = theMesh.getNElements()  # Number of elements in the mesh
         for n in range(self.nelem):
             elem = theMesh.getElement(n)
@@ -236,7 +241,7 @@ class FEModel:
         """
         get number of nodes in the mesh
         """
-        return self.nnode
+        return self.nNodes
 
     def getNElements(self):
         """
@@ -259,7 +264,14 @@ class FEModel:
         """
         Assemble nodal values for element e, 4-entry array
         """
-        self.Kint[KNod, :, KNod, :] += K[:, :, :, :]
+        loc = self.connect[e]
+        dim = self.getDim()
+        # self.Kint[loc[:], :, loc[:], :] += KNod[:, :, :, :]
+        for i, I in enumerate(loc):
+            for j in range(dim):
+                for k, K in enumerate(loc):
+                    for l in range(dim):
+                        self.Kint[I, j, K, l] += KNod[i, j, k, l]
         # raise Exception("assemble4: Not implemented")
 
     def extract(self, U, e):
@@ -301,10 +313,10 @@ class FEModel:
         """
         Compute residual R = Tint - Text
         """
-        nNodes = self.getNNodes()
-        dim = self.getDim()
-        R = np.zeros((nNodes, dim))
-        R[:, :] = 0.0  # size = (number of nodes in mesh, space dimension)
+        # nNodes = self.getNNodes()
+        # dim = self.getDim()
+        # R = np.zeros((nNodes, dim))
+        # R[:, :] = 0.0  # size = (number of nodes in mesh, space dimension)
         # R = self.computeInternalForces(U, R)
         R = self.computeInternalForces(U)  # R = Tint
         # R -= Text
@@ -317,28 +329,30 @@ class FEModel:
         """
         # K shape = (number of nodes in mesh, space dimension,
         #            number of nodes in mesh, space dimension)
+        self.computeStress(U)
+
         nNodes = self.getNNodes()
         dim = self.getDim()
+        nElements = self.getNElements()
         self.Kint = np.zeros((nNodes, dim, nNodes, dim))
-        for i, e in enumerate(self.elems):
+        for e in range(nElements):
             # uNod = self.extract(U, e)
-            vNod = self.connect[i]
-            K = e.computeStiffness()
-            self.assemble4(e, vNod, K)
-        print("Kint = ")
-        print(self.Kint)
+            elem = self.elems[e]
+            KNod = elem.computeStiffness()
+            self.assemble4(e, KNod)
+        # print("Kint = ")
+        # print(self.Kint)
         return self.Kint
         #  size = (number of nodes in mesh, space dimension,number of nodes in mesh, space dimension)
-        raise Exception("computeInternalStiffness: Not implemented")
+        # raise Exception("computeInternalStiffness: Not implemented")
 
-    def computeTangent(self, U, K):
+    def computeTangent(self, U):
         """
         Compute tangent K = Kint - Kext = Kint: in the absence of displacement-
         depend external forces Kext = 0.
         """
-        K[:, :, :, :] = 0.0
         #  size = (number of nodes in mesh, space dimension,number of nodes in mesh, space dimension)
-        self.computeInternalStiffness(U, K)  # K = Kint
+        K = self.computeInternalStiffness(U)  # K = Kint
         return K
 
     def computeStrain(self, U):
