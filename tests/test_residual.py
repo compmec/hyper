@@ -22,7 +22,8 @@ try:
 except ModuleNotFoundError as e:
     error = str(e)
     notimportedfilename = error.split("'")[1]
-    print("test_residual: Import file not found: " + str(notimportedfilename) + ".py")
+    print("test_residual: Import file not found: " +
+          str(notimportedfilename) + ".py")
     sys.exit()
 
 # try:
@@ -36,8 +37,8 @@ class TUResidual(TU):
     FUNCTIONS = ["new_fileandmaterial", "create_model", "calculate_vectorfunction",
                  "compute_gradstress", "compute_residual", "write_fields", "compare_results"]
 
-    FILENAMES = ["../msh/triangle-tri56.msh",
-                 "../msh/triangle-quad44.msh", "../msh/triangle-quad44.msh"]
+    FILENAMES = ["triangle-tri56.msh",
+                 "triangle-quad44.msh", "triangle-quad44.msh"]
     MATERIALS = [elasticity.StVenantKirchhoffElasticity,
                  elasticity.NeoHookeanElasticity]
 
@@ -46,6 +47,8 @@ class TUResidual(TU):
 
     def __setUp(self):
         number_files = len(TUResidual.FILENAMES)
+        for i in range(number_files):
+            TUResidual.FILENAMES[i] = TU.FOLDER_MSH + TUResidual.FILENAMES[i]
         number_materials = len(TUResidual.MATERIALS)
 
         TUResidual.FUNCTIONS *= number_materials * number_files

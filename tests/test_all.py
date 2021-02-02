@@ -6,12 +6,13 @@ from test_fem import TUFem
 from test_elasticity import TUElasticity
 from test_plot import TUPlot
 from test_residual import TUResidual
+from test_tangent import TUTangent
 
 
 if __name__ == "__main__":
     TU.VERBOSE = False
     TUClasses = [TUTensor, TUMesh, TUGeometry,
-                 TUPlot, TUFem, TUElasticity, TUResidual, test_tangent]
+                 TUPlot, TUFem, TUElasticity, TUResidual, TUTangent]
     counter = 0
     for TUclass in TUClasses:
         test = TUclass()

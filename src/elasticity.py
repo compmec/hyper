@@ -13,13 +13,16 @@ class Elasticity:
     prop = dict()
 
     def __init__(self, E, nu):
+        G = E / (2 * (1. + nu))
+        K = E / (3 * (1 - 2 * nu))
+        lamda = K - (2 / 3) * G
+        mu = G
         self.prop["YOUNG_MODULUS"] = E
         self.prop["POISSON_COEFFICIENT"] = nu
-        self.prop["SHEAR_MODULUS"] = 0.5 * E / (1. + nu)
-        self.prop["BULK_MODULUS"] = E / 3. / (1. - 2 * nu)
-        self.prop["1ST_lamdaE_CONSTANT"] = self.prop["BULK_MODULUS"] - \
-            2. / 3. * self.prop["SHEAR_MODULUS"]
-        self.prop["2ND_lamdaE_CONSTANT"] = self.prop["SHEAR_MODULUS"]
+        self.prop["SHEAR_MODULUS"] = G
+        self.prop["BULK_MODULUS"] = K
+        self.prop["1ST_LAME_CONSTANT"] = lamda
+        self.prop["2ND_LAME_CONSTANT"] = mu
 
     def stress_stiffness(self, C):
         """
@@ -30,10 +33,19 @@ class Elasticity:
         return (PK2, M)
 
     def get1LAME(self):
-        return self.prop["1ST_lamdaE_CONSTANT"]
+        return self.prop["1ST_LAME_CONSTANT"]
 
     def get2LAME(self):
-        return self.prop["2ND_lamdaE_CONSTANT"]
+        return self.prop["2ND_LAME_CONSTANT"]
+
+    def potential(self, C):
+        raise Exception("Elasticity - Potential Function not implemented!")
+
+    def stress(self, C):
+        raise Exception("Elasticity - Stress Function not implemented!")
+
+    def stiffness(self, C):
+        raise Exception("Elasticity - Stiffness Function not implemented!")
 
 
 class StVenantKirchhoffElasticity(Elasticity):
@@ -45,8 +57,8 @@ class StVenantKirchhoffElasticity(Elasticity):
         """
         Compute hyperelastic potential: phi = lamdabda/2 * tr(E)^2 - mu*(E:E)
         """
-        lamda = self.prop["1ST_lamdaE_CONSTANT"]
-        mu = self.prop["2ND_lamdaE_CONSTANT"]
+        lamda = self.get1LAME()
+        mu = self.get2LAME()
         EL = 0.5 * (C - tensor.I(len(C)))  # Lagrangian strain E
         phi = lamda / 2. * (tensor.trace(EL))**2 + mu * np.tensordot(EL, EL, 2)
         return phi
@@ -54,14 +66,16 @@ class StVenantKirchhoffElasticity(Elasticity):
     def stress(self, C):
         """
         Compute 2nd Piola-Kirchhoff stress
+        PK2 = 2*dphi/dC
+            = lambda * tr(E) * I + 2 * mu * E
         """
-        d = len(C)
-        PK2 = tensor.tensor(d)
-        lamda = self.prop["1ST_lamdaE_CONSTANT"]
-        mu = self.prop["2ND_lamdaE_CONSTANT"]
-        E = tensor.tensor(d)
-        E = 0.5 * (C - tensor.I(d))
-        II = tensor.I(d)
+        dim = len(C)
+        PK2 = tensor.tensor(dim)
+        lamda = self.get1LAME()
+        mu = self.get2LAME()
+        E = tensor.tensor(dim)
+        E = 0.5 * (C - tensor.I(dim))
+        II = tensor.I(dim)
         PK2 = lamda * tensor.trace(E) * II + 2 * mu * E
         return PK2
 
@@ -69,12 +83,12 @@ class StVenantKirchhoffElasticity(Elasticity):
         """
         Compute material tangent M = 2*dS/dC
         """
-        d = len(C)
-        lamda = self.prop["1ST_lamdaE_CONSTANT"]
-        mu = self.prop["2ND_lamdaE_CONSTANT"]
-        I = tensor.I(d)
+        dim = len(C)
+        lamda = self.get1LAME()
+        mu = self.get2LAME()
+        I = tensor.I(dim)
         IxI = tensor.outerProd4(I, I)
-        IIsym = tensor.IISym(d)
+        IIsym = tensor.IISym(dim)
         M = lamda * IxI + 2 * mu * IIsym
         return M
 
@@ -89,8 +103,8 @@ class NeoHookeanElasticity(Elasticity):
         """
         Compute hyperelastic potential: phi = mu/2 * (tr(C)-3) - mu*ln(J) + lamda/2 *ln(J)^2
         """
-        lamda = self.prop["1ST_lamdaE_CONSTANT"]
-        mu = self.prop["2ND_lamdaE_CONSTANT"]
+        lamda = self.get1LAME()
+        mu = self.get2LAME()
         J = np.sqrt(tensor.det(C))  # J = det(F) and det(C) = J^2
         part1 = (mu / 2) * (tensor.trace(C) - 3.)
         part2 = mu * np.log(J)
@@ -103,33 +117,17 @@ class NeoHookeanElasticity(Elasticity):
         Compute 2nd Piola-Kirchhoff stress
         """
 
-        d = len(C)
-        PK2 = tensor.tensor(d)
+        dim = len(C)
+        PK2 = tensor.tensor(dim)
         detC = tensor.det(C)
         detF = np.sqrt(detC)
         lnJ = np.log(detF)
-        lamda = self.prop["1ST_lamdaE_CONSTANT"]
-        mu = self.prop["2ND_lamdaE_CONSTANT"]
+        lamda = self.get1LAME()
+        mu = self.get2LAME()
         invC = tensor.inv(C)
-        I = tensor.I(d)
+        I = tensor.I(dim)
         PK2 = mu * (I - invC) + lamda * lnJ * invC
 
-        # if self.VERBOSE:
-        #     print("C = ")
-        #     print(C)
-        #     print("lamda = %e" % lamda)
-        #     print("mu = %e" % mu)
-        #     print("detC = " + str(detC))
-        #     print("detF = " + str(detF))
-        #     print("lnJ = " + str(lnJ))
-        #     print("invC = ")
-        #     print(invC)
-
-        #     print("I-invC = ")
-        #     print(I - invC)
-        #     print("PK2 = ")
-        #     print(PK2 / 1e+6)
-        # self.VERBOSE = False
         return PK2
 
     def stiffness(self, C):
@@ -138,8 +136,8 @@ class NeoHookeanElasticity(Elasticity):
         """
         d = len(C)
         lnJ = np.log(np.sqrt(tensor.det(C)))
-        lamda = self.prop["1ST_lamdaE_CONSTANT"]
-        mu = self.prop["2ND_lamdaE_CONSTANT"]
+        lamda = self.get1LAME()
+        mu = self.get2LAME()
         invC = tensor.inv(C)
         invCC = tensor.outerProd4(invC, invC)
         terme1 = lamda * invCC
@@ -153,6 +151,5 @@ class NeoHookeanElasticity(Elasticity):
                         dinvC[i, j, k, l] = -(part1 + part2) / 2
 
         M = lamda * invCC + 2 * (lamda * lnJ - mu) * dinvC
-        # print("M = ")
-        # print(M / 1e+6)
+
         return M
