@@ -3,7 +3,7 @@
 # Functions to write Gmsh output files
 #
 import numpy as np
-import mesh as msh
+import hyper.mesh as msh
 
 #
 # Read mesh data from a .msh file in Gmsh V.2 or V.4 format

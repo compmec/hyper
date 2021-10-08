@@ -17,34 +17,11 @@ Compare your nodal fields with the solution given in the my_mesh files:
 compare_meshfile.geo script, that must be opened with Gmsh.
 """
 
-try:
-    import sys
-    import numpy as np
-except ModuleNotFoundError:
-    print("The numpy library was not found")
+import numpy as np
+import hyper.gmsh2 as gmsh
 
 
-try:
-    from test_unit import TU
-except ModuleNotFoundError:
-    print("Main file to test was not found: test_unit.py")
-
-try:
-    TU.include_path("src")
-    import gmsh2 as gmsh
-except ModuleNotFoundError as e:
-    error = str(e)
-    notimportedfilename = error.split("'")[1]
-    print("test_mesh: Import file not found: " + str(notimportedfilename) + ".py")
-    sys.exit()
-
-# try:
-#     TU.include_path("msh")
-# except ModuleNotFoundError:
-#     print("Could not include the folder with the mesh examples")
-
-
-def fct(x):
+def scalar_fct(x):
     f = x[0]**2 + x[1]**2
     return f
 
@@ -55,89 +32,187 @@ def vector_fct(x):
     return np.array((fx, fy))
 
 
-class TUMesh(TU):
+def test_ReadTri8():
+    # Reading the mesh
+    inputfilename = "../msh/meshfile-tri8.msh"
+    with open(inputfilename, "r") as meshfile:
+        mesh = gmsh.gmshInput_mesh(meshfile)
 
-    FUNCTIONS = ["new_file", "read_mesh", "calculate_scalarfunction",
-                 "calculate_vectorfield", "write_mesh", "write_scalarfunction", "write_vectorfield"]
-    FILENAMES = ["../msh/meshfile-tri8.msh", "../msh/meshfile-quad8.msh"]
+    # Testing the number of points and dimension
+    assert mesh.nNodes() == 8
+    assert mesh.getDim() == 2
+    assert mesh.getNElements() == 8
 
-    def __init__(self):
-        super(TUMesh, self).__init__()
 
-    def __setUp(self):
-        number_files = len(TUMesh.FILENAMES)
+def test_ReadTri14():
+    # Reading the mesh
+    inputfilename = "../msh/triangle-tri14.msh"
+    with open(inputfilename, "r") as meshfile:
+        mesh = gmsh.gmshInput_mesh(meshfile)
 
-        TUMesh.FUNCTIONS *= number_files
-        self.set_DEN()
-        self.n_fil = 0
+    # Testing the number of points and dimension
+    assert mesh.nNodes() == 13
+    assert mesh.getDim() == 2
+    assert mesh.getNElements() == 14
 
-    def new_file(self):
-        """
-        This function is responsable for changing the self.filename to make more tests. That is, to self.filename not be fix.
-        It changes between all the files in TUMesh.FILENAMES
-        """
-        self.filename = TUMesh.FILENAMES[self.n_fil]
 
-        # We change the number to make the next test
-        self.n_fil += 1
+def test_ReadTri56():
+    # Reading the mesh
+    inputfilename = "../msh/triangle-tri56.msh"
+    with open(inputfilename, "r") as meshfile:
+        mesh = gmsh.gmshInput_mesh(meshfile)
 
-    def read_mesh(self):
-        meshfile = open(self.filename, 'r')
-        self.mesh = gmsh.gmshInput_mesh(meshfile)
-        meshfile.close()
-        # nNodes = self.mesh.getNNodes()
-        # nEleme = self.mesh.getNElements()
-        # print("Read mesh with %d nodes and %d elements" % (nNodes, nEleme))
+    assert mesh.nNodes() == 39
+    assert mesh.getDim() == 2
+    assert mesh.getNElements() == 56
 
-    def calculate_scalarfunction(self):
-        """
-        initialise array of zeros,
-        """
-        nNodes = self.mesh.nNodes()
-        self.V = np.zeros((nNodes, 1))
-        for i in range(self.mesh.nNodes()):
-            Node_i = self.mesh.getNode(i)
-            X_i = Node_i.getX()
-            self.V[i] = fct(X_i)
 
-    def calculate_vectorfield(self):
-        """
-        create nodal array
-        """
-        nNodes = self.mesh.nNodes()
-        dim = self.mesh.getDim()
-        self.U = np.zeros((nNodes, dim))  # initialise array of zeros,
-        # We have that U is a array of Nx2.
-        # That is, U = [[U0x, U0y], [U1x, U1y], ..., [UNx, UNy]]
-        # If we want U to be just a vector
-        # U = U.reshape(U.size)
+def test_ReadQuad8():
+    # Reading the mesh
+    inputfilename = "../msh/meshfile-quad8.msh"
+    with open(inputfilename, "r") as meshfile:
+        mesh = gmsh.gmshInput_mesh(meshfile)
 
-        # print("Calculating vector field for %d nodes" % (self.mesh.nNodes()))
-        for i in range(nNodes):
-            Node_i = self.mesh.getNode(i)
-            X_i = Node_i.getX()
-            self.U[i] = vector_fct(X_i)
+    # Testing the number of points and dimension
+    assert mesh.nNodes() == 15
+    assert mesh.getDim() == 2
+    assert mesh.getNElements() == 8
 
-    def write_mesh(self):
-        """
-        """
-        outputfnam = self.filename.replace(".msh", "") + '-val.msh'
-        self.outfile = open(outputfnam, 'w')
-        # print("Writing mesh into " + str(outputfnam))
-        gmsh.gmshOutput_mesh(self.outfile, self.mesh)
 
-    def write_scalarfunction(self):
-        # print("Writing scalar field into " + str(outputfnam))
-        gmsh.gmshOutput_nodal(self.outfile, "scalar field", self.V,
+def test_ReadQuad11():
+    # Reading the mesh
+    inputfilename = "../msh/triangle-quad11.msh"
+    with open(inputfilename, "r") as meshfile:
+        mesh = gmsh.gmshInput_mesh(meshfile)
+
+    # Testing the number of points and dimension
+    assert mesh.nNodes() == 16
+    assert mesh.getDim() == 2
+    assert mesh.getNElements() == 11
+
+
+def test_ReadQuad44():
+    # Reading the mesh
+    inputfilename = "../msh/triangle-quad44.msh"
+    with open(inputfilename, "r") as meshfile:
+        mesh = gmsh.gmshInput_mesh(meshfile)
+
+    # Testing the number of points and dimension
+    assert mesh.nNodes() == 49
+    assert mesh.getDim() == 2
+    assert mesh.getNElements() == 44
+
+
+############################################################
+#    TESTING THE POSITION OF NODES
+#################################################
+
+def test_PositionNodesTri8():
+    # Reading the mesh
+    inputfilename = "../msh/meshfile-tri8.msh"
+    with open(inputfilename, "r") as meshfile:
+        mesh = gmsh.gmshInput_mesh(meshfile)
+
+    # Testing the position of the node
+    nNodes = mesh.nNodes()
+    dim = mesh.getDim()
+    X = np.zeros((nNodes, dim))
+    for i in range(nNodes):
+        Node_i = mesh.getNode(i)
+        X[i] = Node_i.getX()
+    Xgood = [[0, 1, 1, 0, 0.5, 0.5, 0.25, 0.75],
+             [0, 0, 0.3, 0.3, 0, 0.3, 0.15, 0.15]]
+    Xgood = np.array(Xgood).T
+    np.testing.assert_almost_equal(X, Xgood)
+
+
+def test_PositionNodesQuad8():
+    inputfilename = "../msh/meshfile-quad8.msh"
+    with open(inputfilename, "r") as meshfile:
+        mesh = gmsh.gmshInput_mesh(meshfile)
+
+    # Testing the position of the node
+    nNodes = mesh.nNodes()
+    dim = mesh.getDim()
+    X = np.zeros((nNodes, dim))
+    for i in range(nNodes):
+        Node_i = mesh.getNode(i)
+        X[i] = Node_i.getX()
+    Xgood = [[0, 20, 20, 0, 5, 10, 15, 20, 15, 10, 5, 0, 10, 5, 15],
+             [0, 0, 6, 6, 0, 0, 0, 3, 6, 6, 6, 3, 3, 3, 3]]
+    Xgood = np.array(Xgood).T / 20
+    np.testing.assert_almost_equal(X, Xgood)
+
+
+# ################################################
+# #  TESTING FIELDS
+# ################################################
+
+def test_FieldsTri8():
+    inputfilename = "../msh/meshfile-tri8.msh"
+    with open(inputfilename, "r") as meshfile:
+        mesh = gmsh.gmshInput_mesh(meshfile)
+    nNodes = mesh.nNodes()
+    dim = mesh.getDim()
+
+    # Testing the scalar field
+    V = np.zeros((nNodes, 1))
+    for i in range(nNodes):
+        Node_i = mesh.getNode(i)
+        X_i = Node_i.getX()
+        V[i] = scalar_fct(X_i)
+
+    # Testing the vectorial field
+    U = np.zeros((nNodes, dim))
+    for i in range(nNodes):
+        Node_i = mesh.getNode(i)
+        X_i = Node_i.getX()
+        U[i] = vector_fct(X_i)
+
+    # Writting the results in a mesh
+    outputfilename = inputfilename.replace(".msh", "-val.msh")
+    with open(outputfilename, 'w') as outputfile:
+        # Write the base mesh
+        gmsh.gmshOutput_mesh(outputfile, mesh)
+
+        # Write scalar field
+        gmsh.gmshOutput_nodal(outputfile, "scalar field", V,
                               it=0, t=0.0)  # write nodal field 'V'
-        # named 'scalar field' to self.mesh 'outfile' at iteration 'it' and time 't'
 
-    def write_vectorfield(self):
-        # print("Writing vector field in " + str(outputfnam))
-        gmsh.gmshOutput_nodal(self.outfile, "VectorField", self.U, it=0, t=0)
-        self.outfile.close()
+        # Write vectorial field
+        gmsh.gmshOutput_nodal(outputfile, "VectorField", U, it=0, t=0)
 
 
-if __name__ == "__main__":
-    test = TUMesh()
-    test.run()
+def test_FieldsQuad8():
+    inputfilename = "../msh/meshfile-quad8.msh"
+    with open(inputfilename, "r") as meshfile:
+        mesh = gmsh.gmshInput_mesh(meshfile)
+    nNodes = mesh.nNodes()
+    dim = mesh.getDim()
+
+    # Testing the scalar field
+    V = np.zeros((nNodes, 1))
+    for i in range(nNodes):
+        Node_i = mesh.getNode(i)
+        X_i = Node_i.getX()
+        V[i] = scalar_fct(X_i)
+
+    # Testing the vectorial field
+    U = np.zeros((nNodes, dim))
+    for i in range(nNodes):
+        Node_i = mesh.getNode(i)
+        X_i = Node_i.getX()
+        U[i] = vector_fct(X_i)
+
+    # Writting the results in a mesh
+    outputfilename = inputfilename.replace(".msh", "-val.msh")
+    with open(outputfilename, 'w') as outputfile:
+        # Write the base mesh
+        gmsh.gmshOutput_mesh(outputfile, mesh)
+
+        # Write scalar field
+        gmsh.gmshOutput_nodal(outputfile, "scalar field", V,
+                              it=0, t=0.0)  # write nodal field 'V'
+
+        # Write vectorial field
+        gmsh.gmshOutput_nodal(outputfile, "VectorField", U, it=0, t=0)
