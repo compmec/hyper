@@ -51,7 +51,7 @@ class IPTri:
             X = [(1 / 3, 1 / 3), (3 / 5, 1 / 5),
                  (1 / 5, 1 / 5), (1 / 5, 3 / 5)]
         else:
-            raise Exception("Not found npg = " + str(npg))
+            raise ValueError("Not found npg = " + str(npg))
         return X
 
     @staticmethod
@@ -63,7 +63,7 @@ class IPTri:
         elif npg == 4:
             W = [-9 / 32, 25 / 96, 25 / 96, 25 / 96]
         else:
-            raise Exception("Not found npg = " + str(npg))
+            raise ValueError("Not found npg = " + str(npg))
         return W
 
 
@@ -90,7 +90,7 @@ class IPQua:
                  (-b, 0), (0, 0), (b, 0),
                  (-b, -b), (0, -b), (b, -b)]
         else:
-            raise Exception("Not found npg = " + str(npg))
+            raise ValueError("Not found npg = " + str(npg))
         return X
 
     @staticmethod
@@ -104,7 +104,7 @@ class IPQua:
                  40 / 81, 64 / 81, 40 / 81,
                  25 / 81, 40 / 81, 25 / 81]
         else:
-            raise Exception("Not found npg = " + str(npg))
+            raise ValueError("Not found npg = " + str(npg))
         return W
 
 

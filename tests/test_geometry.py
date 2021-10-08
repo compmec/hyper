@@ -1,88 +1,274 @@
 # -*- coding: utf-8 -*-
 
-
-try:
-    from test_unit import TU
-except ModuleNotFoundError:
-    print("Main file to test was not found: test_unit.py")
-
-try:
-    TU.include_path("src")
-    import geometry
-except ModuleNotFoundError as e:
-    error = str(e)
-    notimportedfilename = error.split("'")[1]
-    print("test_geometry: Import file not found: " +
-          str(notimportedfilename) + ".py")
-    sys.exit()
+import pytest
+import numpy as np
+from hyper import geometry
 
 
-class TUGeometry(TU):
-    """
-    Class for testing the geometry module
-    """
-
-    # FUNCTIONS = ["T3", "T6", "Q4", "Q8"]
-    FUNCTIONS = ["T3"]
-
-    def __init__(self):
-        super(TUGeometry, self).__init__()
-
-    @staticmethod
-    def test_interpolation(points, N):
-        n = len(points)
-        for i in range(n):
-            Np = N(points[i])
-            for j in range(n):
-                if i == j:
-                    if Np[j] != 1:
-                        raise Exception("N(pi)[i] != 1 ---> Impossible")
-                else:
-                    if Np[j] != 0:
-                        raise Exception(
-                            "N(pi)[j] != 0 ---> Impossible")
-
-    @staticmethod
-    def test_derivative(points, dN):
-        n = len(points)
-        for i in range(n):
-            dNp = dN(points[i])
-            for j in range(n):
-                pass
-                # if i == j:
-                #     if dNp[i] != 1:
-                #         raise Exception("dN(pi)[i] != 1 ---> Impossible")
-                # else:
-                #     if dNp[i] != 0:
-                #         raise Exception("dN(pi)[j] != 0 ---> Impossible")
-
-    @staticmethod
-    def T3():
-        N = geometry.SFT3.N
-        dN = geometry.SFT3.dN
-        P = geometry.SFT3.P
-        points = P()
-        interp = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
-        deriva = [((-1, -1), (1, 0), (0, 1)),
-                  ((-1, -1), (1, 0), (0, 1)),
-                  ((-1, -1), (1, 0), (0, 1))]
-        TUGeometry.test_interpolation(points, N)
-        TUGeometry.test_derivative(points, dN)
-
-        # n = len(points)
-        # for i, p in enumerate(points):
-        #     Np = N(p)
-        #     for j in range(n):
-        #         if Np[j] != interp[i][j]:
-        #             raise Exception("Not interpolation")
-        # for i, p in enumerate(points):
-        #     dNp = dN(p)
-        #     for j in range(n):
-        #         for k in range(2):
-        #             if dNp[j][k] != deriva[i][j][k]:
-        #                 raise Exception("Not derivation")
+def getRandomPointTriangle():
+    # We want points (x, y) that satisfy
+    # 0 <= x <= 1, 0 <= y <= 1 and (x+y) <= 1
+    x = np.random.rand(1)
+    y = np.random.rand(1) * (1 - x)
+    return (x, y)
 
 
-if __name__ == "__main__":
-    test = TUGeometry()
-    test.run()
+def getRandomPointSquare():
+    # We want points (x, y) that satisfy
+    # -1 <= x <= 1, -1 <= y <= 1
+    x = 2 * np.random.rand(1) - 1
+    y = 2 * np.random.rand(1) - 1
+    return (x, y)
+
+
+def test_SumValuesSFT3():
+    Ntests = 100
+    for i in range(Ntests):
+        point = getRandomPointTriangle()
+        Np = geometry.SFT3.N(point)
+        assert np.sum(Np) == pytest.approx(1)
+
+
+def test_SumValuesSFT6():
+    Ntests = 100
+    for i in range(Ntests):
+        point = getRandomPointTriangle()
+        Np = geometry.SFT6.N(point)
+        assert np.sum(Np) == pytest.approx(1)
+
+
+def test_SumValuesSFQ4():
+    Ntests = 100
+    for i in range(Ntests):
+        point = getRandomPointTriangle()
+        Np = geometry.SFQ4.N(point)
+        assert np.sum(Np) == pytest.approx(1)
+
+
+def test_SumValuesSFQ8():
+    Ntests = 100
+    for i in range(Ntests):
+        point = getRandomPointTriangle()
+        Np = geometry.SFQ8.N(point)
+        assert np.sum(Np) == pytest.approx(1)
+
+
+def test_InterpolationSFT3():
+    Ps = geometry.SFT3.P()  # Element's point
+    n = len(Ps)  # Number of points
+    for i, Pi in enumerate(Ps):
+        V = geometry.SFT3.N(Pi)
+        for j in range(n):
+            if i == j:
+                assert V[j] == 1
+            else:
+                assert V[j] == 0
+
+
+def test_InterpolationSFT6():
+    Ps = geometry.SFT6.P()  # Element's point
+    n = len(Ps)  # Number of points
+    for i, Pi in enumerate(Ps):
+        V = geometry.SFT6.N(Pi)
+        for j in range(n):
+            if i == j:
+                assert V[j] == 1
+            else:
+                assert V[j] == 0
+
+
+def test_InterpolationSFQ4():
+    Ps = geometry.SFQ4.P()  # Element's point
+    n = len(Ps)  # Number of points
+    for i, Pi in enumerate(Ps):
+        V = geometry.SFQ4.N(Pi)
+        for j in range(n):
+            if i == j:
+                assert V[j] == 1
+            else:
+                assert V[j] == 0
+
+
+def test_InterpolationSFQ8():
+    Ps = geometry.SFQ8.P()  # Element's point
+    n = len(Ps)  # Number of points
+    for i, Pi in enumerate(Ps):
+        V = geometry.SFQ8.N(Pi)
+        for j in range(n):
+            if i == j:
+                assert V[j] == 1
+            else:
+                assert V[j] == 0
+
+
+def test_derivativeSFT3():
+    # For this function we have constant fields
+    # So, doesn't matter the points, it's always the same
+    # We test if it changes depending of the point
+    Ntests = 100
+    dNgood = [[-1, -1], [1, 0], [0, 1]]
+    for i in range(Ntests):
+        point = getRandomPointTriangle()
+        dNtest = geometry.SFT3.dN(point)
+        assert dNtest == dNgood
+
+
+def test_derivativeSFT6():
+    P = (0, 0)
+    dNgood = [[-3, -3], [4, 0], [-1, 0], [0, 0], [0, -1], [0, 4]]
+    dNtest = geometry.SFT6.dN(P)
+    assert dNtest == dNgood
+
+    P = (0.5, 0)
+    dNgood = [[-1.0, -1.0], [0.0, -2.0], [1.0, 0], [0, 2.0], [0, -1], [0, 2.0]]
+    dNtest = geometry.SFT6.dN(P)
+    assert dNtest == dNgood
+
+    P = (1, 0)
+    dNgood = [[1, 1], [-4, -4], [3, 0], [0, 4], [0, -1], [0, 0]]
+    dNtest = geometry.SFT6.dN(P)
+    assert dNtest == dNgood
+
+    P = (0, 0.5)
+    dNgood = [[-1.0, -1.0], [2.0, 0], [-1, 0], [2.0, 0], [0, 1.0], [-2.0, 0.0]]
+    dNtest = geometry.SFT6.dN(P)
+    assert dNtest == dNgood
+
+    P = (0.5, 0.5)
+    dNgood = [[1.0, 1.0], [-2.0, -2.0], [1.0, 0],
+              [2.0, 2.0], [0, 1.0], [-2.0, -2.0]]
+    dNtest = geometry.SFT6.dN(P)
+    assert dNtest == dNgood
+
+    P = (0, 1)
+    dNgood = [[1, 1], [0, 0], [-1, 0], [4, 0], [0, 3], [-4, -4]]
+    dNtest = geometry.SFT6.dN(P)
+    assert dNtest == dNgood
+
+    P = (1 / 3, 1 / 3)
+    dNgood = [[-1 / 3, -1 / 3], [0, -4 / 3],
+              [1 / 3, 0], [4 / 3, 4 / 3],
+              [0, 1 / 3], [-4 / 3, 0]]
+    dNtest = geometry.SFT6.dN(P)
+    np.testing.assert_almost_equal(dNtest, dNgood)
+
+
+def test_derivativeSFQ4():
+    P = (-1, -1)
+    dNgood = [[-0.5, -0.5], [0.5, 0], [0, 0], [0, 0.5]]
+    dNtest = geometry.SFQ4.dN(P)
+    assert dNtest == dNgood
+
+    P = (0, -1)
+    dNgood = [[-0.5, -0.25], [0.5, -0.25], [0, 0.25], [0, 0.25]]
+    dNtest = geometry.SFQ4.dN(P)
+    assert dNtest == dNgood
+
+    P = (1, -1)
+    dNgood = [[-0.5, 0], [0.5, -0.5], [0, 0.5], [0, 0]]
+    dNtest = geometry.SFQ4.dN(P)
+    assert dNtest == dNgood
+
+    P = (-1, 0)
+    dNgood = [[-0.25, -0.5], [0.25, 0], [0.25, 0], [-0.25, 0.5]]
+    dNtest = geometry.SFQ4.dN(P)
+    assert dNtest == dNgood
+
+    P = (0, 0)
+    dNgood = [[-0.25, -0.25], [0.25, -0.25], [0.25, 0.25], [-0.25, 0.25]]
+    dNtest = geometry.SFQ4.dN(P)
+    assert dNtest == dNgood
+
+    P = (1, 0)
+    dNgood = [[-0.25, 0], [0.25, -0.5], [0.25, 0.5], [-0.25, 0]]
+    dNtest = geometry.SFQ4.dN(P)
+    assert dNtest == dNgood
+
+    P = (-1, 1)
+    dNgood = [[0, -0.5], [0, 0], [0.5, 0], [-0.5, 0.5]]
+    dNtest = geometry.SFQ4.dN(P)
+    assert dNtest == dNgood
+
+    P = (0, 1)
+    dNgood = [[0, -0.25], [0, -0.25], [0.5, 0.25], [-0.5, 0.25]]
+    dNtest = geometry.SFQ4.dN(P)
+    assert dNtest == dNgood
+
+    P = (1, 1)
+    dNgood = [[0, 0], [0, -0.5], [0.5, 0.5], [-0.5, 0]]
+    dNtest = geometry.SFQ4.dN(P)
+    assert dNtest == dNgood
+
+
+def test_derivativeSFQ8():
+    P = (-1, -1)
+    dNtest = geometry.SFQ8.dN(P)
+    dNgood = [[-1.5, -1.5], [2, 0],
+              [-0.5, 0], [0, 0],
+              [0, 0], [0, 0],
+              [0, -0.5], [0, 2]]
+    assert dNtest == dNgood
+
+    P = (0, -1)
+    dNtest = geometry.SFQ8.dN(P)
+    dNgood = [[-0.5, -0.5], [0, -0.5],
+              [0.5, -0.5], [0, 1],
+              [0, -0.5], [0, 0.5],
+              [0, -0.5], [0, 1]]
+    assert dNtest == dNgood
+
+    P = (1, -1)
+    dNtest = geometry.SFQ8.dN(P)
+    dNgood = [[0.5, 0], [-2, 0],
+              [1.5, -1.5], [0, 2],
+              [0, -0.5], [0, 0],
+              [0, 0], [0, 0]]
+    assert dNtest == dNgood
+
+    P = (-1, 0)
+    dNtest = geometry.SFQ8.dN(P)
+    dNgood = [[-0.5, -0.5], [1, 0],
+              [-0.5, 0], [0.5, 0],
+              [-0.5, 0], [1, 0],
+              [-0.5, 0.5], [-0.5, 0]]
+    assert dNtest == dNgood
+
+    P = (0, 0)
+    dNtest = geometry.SFQ8.dN(P)
+    dNgood = [[0, 0], [0, -0.5],
+              [0, 0], [0.5, 0],
+              [0, 0], [0, 0.5],
+              [0, 0], [-0.5, 0]]
+    assert dNtest == dNgood
+
+    P = (1, 0)
+    dNtest = geometry.SFQ8.dN(P)
+    dNgood = [[0.5, 0], [-1, 0],
+              [0.5, -0.5], [0.5, 0],
+              [0.5, 0.5], [-1, 0],
+              [0.5, 0], [-0.5, 0]]
+    assert dNtest == dNgood
+
+    P = (-1, 1)
+    dNtest = geometry.SFQ8.dN(P)
+    dNgood = [[0, 0.5], [0, 0],
+              [0, 0], [0, 0],
+              [-0.5, 0], [2, 0],
+              [-1.5, 1.5], [0, -2]]
+    assert dNtest == dNgood
+
+    P = (0, 1)
+    dNtest = geometry.SFQ8.dN(P)
+    dNgood = [[0, 0.5], [0, -0.5],
+              [0, 0.5], [0, -1],
+              [0.5, 0.5], [0, 0.5],
+              [-0.5, 0.5], [0, -1]]
+    assert dNtest == dNgood
+
+    P = (1, 1)
+    dNtest = geometry.SFQ8.dN(P)
+    dNgood = [[0, 0], [0, 0],
+              [0, 0.5], [0, -2],
+              [1.5, 1.5], [-2, 0],
+              [0.5, 0], [0, 0]]
+    assert dNtest == dNgood
