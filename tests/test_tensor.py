@@ -1,184 +1,201 @@
 # -*- coding: utf-8 -*-
+import numpy as np
+from hyper import tensor
 
 
-try:
-    import numpy as np
-    from numpy import linalg as la
-except ModuleNotFoundError:
-    print("The numpy library was not found")
+def test_vector():
+    # Testing creation
+    vectest = tensor.vector()
+    assert type(vectest) is np.ndarray
+
+    # Testing attribution of individual values
+    vectest[0] = 1.0
+    vectest[1] = 2.0
+    assert type(vectest) is np.ndarray
+    assert vectest.ndim == 1
+    assert vectest.shape == (2, )
+    np.testing.assert_array_equal(vectest, [1, 2])
+
+    # Testing attribution of array values
+    vectest[:] = [3, 4]
+    assert type(vectest) is np.ndarray
+    assert vectest.ndim == 1
+    assert vectest.shape == (2,)
+    np.testing.assert_array_equal(vectest, [3, 4])
+
+    # Testing dim = 3 array
+    vectest = tensor.vector(3)
+    vectest[:] = [-1, 2, 1]
+    assert type(vectest) is np.ndarray
+    assert vectest.ndim == 1
+    assert vectest.shape == (3,)
+    np.testing.assert_array_equal(vectest, [-1, 2, 1])
 
 
-try:
-    from test_unit import TU
-except ModuleNotFoundError:
-    print("Main file to test was not found: test_unit.py")
+def test_tensor():
+    # Testing tensor with dim = 2
+    Mtest = tensor.tensor()
+    assert type(Mtest) is np.ndarray
+    assert Mtest.ndim == 2
+    assert Mtest.shape == (2, 2)
 
-try:
-    TU.include_path("src")
-    import tensor
-except ModuleNotFoundError:
-    print("test_tensor: Import file not found: tensor.py")
-
-
-class TUTensor(TU):
-    """
-    Class for testing the tensor module
-    """
-
-    FUNCTIONS = ["vector",
-                 "tensor",
-                 "I",
-                 "outerProd",
-                 "det",
-                 "trace",
-                 "inv",
-                 "rightCauchyGreen",
-                 "leftCauchyGreen",
-                 "tensor4",
-                 "II",
-                 "IISym",
-                 "KK",
-                 "outerProd4"]
-
-    def __init__(self):
-        super(TUTensor, self).__init__()
-
-    @staticmethod
-    def vector():
-        for number in range(3):
-            if number == 0:
-                tensor.vector()
-            elif number == 1:
-                my_vector = tensor.vector()
-                my_vector[0] = 1.0
-                my_vector[1] = 2.0
-            elif number == 2:
-                my_vector = tensor.vector(3)
-                my_vector[0] = 1.5
-                my_vector[2] = -3.0
-
-    @staticmethod
-    def tensor():
-        tensor.tensor()
-
-    @staticmethod
-    def I():
-        tensor.I()
-
-    @staticmethod
-    def outerProd():
-        v = np.array([1, 2])
-        output = tensor.outerProd(v, v)
-
-        expected = np.array([[1, 2],
-                             [2, 4]])
-        if la.norm(output - expected) > 1e-14:
-            raise Exception("Not equal")
-
-    @staticmethod
-    def det():
-        for number in range(3):
-            if number == 0:
-                B = np.array([[1, 2],
-                              [2, 4]])
-                output = tensor.det(B)
-
-                expected = 0
-            elif number == 1:
-                B = np.array([[1, 2],
-                              [2, 5]])
-                output = tensor.det(B)
-
-                expected = 1
-            if la.norm(output - expected) > 1e-14:
-                raise Exception("Not equal")
-
-    @staticmethod
-    def trace():
-        B = np.array([[1, 2],
-                      [2, 4]])
-        output = tensor.trace(B)
-        expected = 5
-        if la.norm(output - expected) > 1e-14:
-            raise Exception("Not equal")
-
-    @staticmethod
-    def inv():
-        for number in range(2):
-            if number == 0:
-                F = np.array([[2, 3],
-                              [2, 5]])
-
-                expected = np.array([[1.25, -0.75],
-                                     [-0.5, 0.5]])
-            elif number == 1:
-                F = np.array([[1, 0],
-                              [0, 1]])
-                expected = np.array([[1, 0],
-                                     [0, 1]])
-            output = tensor.inv(F)
-            if la.norm(output - expected) > 1e-14:
-                raise Exception("Not equal")
-
-    @staticmethod
-    def rightCauchyGreen():
-        F = np.array([[2, 3],
-                      [2, 5]])
-        output = tensor.rightCauchyGreen(F)
-        expected = np.array([[8, 16],
-                             [16, 34]])
-        if la.norm(output - expected) > 1e-14:
-            raise Exception("Not equal")
-
-    @staticmethod
-    def leftCauchyGreen():
-        F = np.array([[2, 3],
-                      [2, 5]])
-        output = tensor.leftCauchyGreen(F)
-        expected = np.array([[13, 19],
-                             [19, 29]])
-        if la.norm(output - expected) > 1e-14:
-            raise Exception("Not equal")
-
-    @staticmethod
-    def tensor4():
-        output = tensor.tensor4()
-        expected = np.zeros((2, 2, 2, 2))
-        # expected[0, 0, 0, 0] = 1
-        if la.norm(output - expected) > 1e-14:
-            raise Exception("Not equal")
-
-    @staticmethod
-    def II():
-        output = tensor.II()
-        expected = np.array([[[[1, 0], [0, 0]], [[0, 1], [0, 0]]], [
-                            [[0, 0], [1, 0]], [[0, 0], [0, 1]]]])
-        if la.norm(output - expected) > 1e-14:
-            raise Exception("Not equal")
-
-    @staticmethod
-    def IISym():
-        output = tensor.IISym()
-        expected = np.array([[[[1,   0],  [0,   0]],  [[0,   0.5],  [0.5, 0]]],               [
-                            [[0,   0.5],  [0.5, 0]],  [[0,   0],  [0,   1.]]]])
-        if la.norm(output - expected) > 1e-14:
-            raise Exception("Not equal")
-
-    @staticmethod
-    def KK():
-        tensor.KK()
-
-    @staticmethod
-    def outerProd4():
-        C = np.array([[8, 16],
-                      [16, 34]])
-        output = tensor.outerProd4(C, C)
-        expected = [[[[64, 128], [128, 272]], [[128, 256], [256, 544]]], [
-            [[128, 256], [256, 544]], [[272, 544], [544, 1156]]]]
-        if la.norm(output - expected) > 1e-14:
-            raise Exception("Not equal")
+    # Testing tensor with dim = 3
+    Mtest = tensor.tensor(3)
+    assert type(Mtest) is np.ndarray
+    assert Mtest.ndim == 2
+    np.testing.assert_array_equal(Mtest.shape, (3, 3))
 
 
-if __name__ == "__main__":
-    test = TUTensor()
-    test.run()
+def test_I():
+    Itest = tensor.I()
+    Igood = [[1, 0],
+             [0, 1]]
+    assert type(Itest) is np.ndarray
+    assert Itest.shape == (2, 2)
+    np.testing.assert_array_equal(Itest, Igood)
+
+    Itest = tensor.I(3)
+    Igood = [[1, 0, 0],
+             [0, 1, 0],
+             [0, 0, 1]]
+    assert type(Itest) is np.ndarray
+    assert Itest.shape == (3, 3)
+    np.testing.assert_array_equal(Itest, Igood)
+
+
+def test_outerProd():
+    v = [1, 2]
+    Mgood = [[1, 2],
+             [2, 4]]
+    Mtest = tensor.outerProd(v, v)
+    assert Mtest.ndim == 2
+    assert Mtest.shape == (2, 2)
+    np.testing.assert_array_equal(Mtest, Mgood)
+
+
+def test_det():
+    M = [[1, 2],
+         [2, 4]]
+    detgood = 0
+    dettest = tensor.det(M)
+    assert dettest == detgood
+
+    M = [[1, 2],
+         [2, 5]]
+    detgood = 1
+    dettest = tensor.det(M)
+    assert dettest == detgood
+
+
+def test_trace():
+    M = [[1, 2],
+         [2, 4]]
+    trgood = 5
+    trtest = tensor.trace(M)
+    assert trtest == trgood
+
+    M = [[1, 2],
+         [2, 5]]
+    trgood = 6
+    trtest = tensor.trace(M)
+    assert trtest == trgood
+
+
+def test_inv():
+    M = [[1, 0],
+         [0, 1]]
+    Vgood = [[1, 0],
+             [0, 1]]
+    Vtest = tensor.inv(M)
+    assert Vtest.ndim == 2
+    assert Vtest.shape == (2, 2)
+    np.testing.assert_array_equal(Vtest, Vgood)
+
+    M = [[2, 3],
+         [2, 5]]
+    Vgood = [[1.25, -0.75],
+             [-0.5, 0.5]]
+    Vtest = tensor.inv(M)
+    assert Vtest.ndim == 2
+    assert Vtest.shape == (2, 2)
+    np.testing.assert_array_equal(Vtest, Vgood)
+
+
+def test_rightCauchyGreen():
+    F = [[2, 3],
+         [2, 5]]
+    Cgood = [[8, 16],
+             [16, 34]]
+    Ctest = tensor.rightCauchyGreen(F)
+    assert Ctest.ndim == 2
+    assert Ctest.shape == (2, 2)
+    np.testing.assert_array_equal(Ctest, Cgood)
+
+
+def test_leftCauchyGreen():
+    F = [[2, 3],
+         [2, 5]]
+    Bgood = [[13, 19],
+             [19, 29]]
+    Btest = tensor.leftCauchyGreen(F)
+    assert Btest.ndim == 2
+    assert Btest.shape == (2, 2)
+    np.testing.assert_array_equal(Btest, Bgood)
+
+
+def test_tensor4():
+    Mtest = tensor.tensor4()
+    assert Mtest.ndim == 4
+    assert Mtest.shape == (2, 2, 2, 2)
+    assert np.sum(Mtest) == 0
+
+    Mtest = tensor.tensor4(3)
+    assert Mtest.ndim == 4
+    assert Mtest.shape == (3, 3, 3, 3)
+    assert np.sum(Mtest) == 0
+
+
+def test_II():
+    IIgood = [[[[1, 0], [0, 0]],
+               [[0, 1], [0, 0]]],
+              [[[0, 0], [1, 0]],
+               [[0, 0], [0, 1]]]]
+    IItest = tensor.II()
+    assert IItest.ndim == 4
+    assert IItest.shape == (2, 2, 2, 2)
+    np.testing.assert_array_equal(IItest, IIgood)
+
+
+def test_IISym():
+    IItest = tensor.IISym()
+    IIgood = [[[[1, 0], [0, 0]],
+               [[0, 0.5], [0.5, 0]]],
+              [[[0, 0.5], [0.5, 0]],
+               [[0, 0], [0, 1]]]]
+    assert IItest.ndim == 4
+    assert IItest.shape == (2, 2, 2, 2)
+    np.testing.assert_array_equal(IItest, IIgood)
+
+
+def test_KK():
+    KKtest = tensor.KK()
+    KKgood = [[[[1, 0], [0, 1]],
+               [[0, 0], [0, 0]]],
+              [[[0, 0], [0, 0]],
+               [[1, 0], [0, 1]]]]
+    assert KKtest.ndim == 4
+    assert KKtest.shape == (2, 2, 2, 2)
+    np.testing.assert_array_equal(KKtest, KKgood)
+
+
+def test_outerProd4():
+    C = [[8, 16],
+         [16, 34]]
+    Mgood = [[[[64, 128], [128, 272]],
+              [[128, 256], [256, 544]]],
+             [[[128, 256], [256, 544]],
+              [[272, 544], [544, 1156]]]]
+    Mtest = tensor.outerProd4(C, C)
+    assert Mtest.ndim == 4
+    assert Mtest.shape == (2, 2, 2, 2)
+    np.testing.assert_array_equal(Mtest, Mgood)

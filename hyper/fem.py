@@ -5,8 +5,8 @@
 
 
 import numpy as np
-import tensor
-import geometry
+import hyper.tensor as tensor
+import hyper.geometry as geometry
 from scipy.linalg import polar
 
 
