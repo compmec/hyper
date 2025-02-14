@@ -1,3 +1,5 @@
+[![Build Status][build-img]][build-url]
+
 # Hyper-elastic materials
 
 ### Introduction
@@ -54,3 +56,8 @@ pytest
 
 There are some examples in the folder `examples` explaining how to run
 
+
+<!-- Badges: -->
+
+[build-img]: https://github.com/compmec/hyper/actions/workflows/build.yaml/badge.svg
+[build-url]: https://github.com/compmec/hyper/actions/workflows/build.yaml
