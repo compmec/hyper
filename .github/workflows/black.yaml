@@ -1,0 +1,22 @@
+name: Lint with Black
+
+on:
+  push:
+    paths:
+      - src/**
+      - tests/**
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: psf/black@stable
+        with:
+          options: "--check --verbose --exclude docs"
+    
+
