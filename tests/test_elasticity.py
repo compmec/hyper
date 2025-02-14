@@ -1,11 +1,11 @@
-#, -*- coding: utf-8, -*-
+# , -*- coding: utf-8, -*-
 """
 """
 
-import pytest
-from hyper import elasticity
-from hyper import tensor
 import numpy as np
+import pytest
+
+from hyper import elasticity, tensor
 
 
 def test_StVenantKirchhoffValues():
@@ -91,24 +91,21 @@ def test_StVenantKirchhoffStress():
 
     C = np.ones((2, 2))
     PK2test = material.stress(C)
-    PK2good = 10 * np.array([[0, 1],
-                             [1, 0]])
+    PK2good = 10 * np.array([[0, 1], [1, 0]])
     assert PK2test.ndim == 2
     assert PK2test.shape == (2, 2)
     np.testing.assert_almost_equal(PK2test, PK2good)
 
     C = 2 * np.eye(2) + 1
     PK2test = material.stress(C)
-    PK2good = 10 * np.array([[5, 1],
-                             [1, 5]])
+    PK2good = 10 * np.array([[5, 1], [1, 5]])
     assert PK2test.ndim == 2
     assert PK2test.shape == (2, 2)
     np.testing.assert_almost_equal(PK2test, PK2good)
 
     C = np.eye(2) + 1
     PK2test = material.stress(C)
-    PK2good = 5 * np.array([[5, 2],
-                            [2, 5]])
+    PK2good = 5 * np.array([[5, 2], [2, 5]])
     assert PK2test.ndim == 2
     assert PK2test.shape == (2, 2)
     np.testing.assert_almost_equal(PK2test, PK2good)
@@ -119,10 +116,10 @@ def test_StVenantKirchhoffStiffness():
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
 
-    Mgood = [[[[7, 0], [0, 3]],
-              [[0, 2], [2, 0]]],
-             [[[0, 2], [2, 0]],
-              [[3, 0], [0, 7]]]]
+    Mgood = [
+        [[[7, 0], [0, 3]], [[0, 2], [2, 0]]],
+        [[[0, 2], [2, 0]], [[3, 0], [0, 7]]],
+    ]
     Mgood = 5 * np.array(Mgood)
 
     C = np.eye(2)  # No deformation at all
@@ -150,15 +147,23 @@ def test_StVenantKirchhoffStiffness():
     np.testing.assert_almost_equal(Mtest, Mgood)
 
     C = np.eye(3)  # No deformation at all
-    Mgood = [[[[7, 0, 0], [0, 3, 0], [0, 0, 3]],
-              [[0, 2, 0], [2, 0, 0], [0, 0, 0]],
-              [[0, 0, 2], [0, 0, 0], [2, 0, 0]]],
-             [[[0, 2, 0], [2, 0, 0], [0, 0, 0]],
-              [[3, 0, 0], [0, 7, 0], [0, 0, 3]],
-              [[0, 0, 0], [0, 0, 2], [0, 2, 0]]],
-             [[[0, 0, 2], [0, 0, 0], [2, 0, 0]],
-              [[0, 0, 0], [0, 0, 2], [0, 2, 0]],
-              [[3, 0, 0], [0, 3, 0], [0, 0, 7]]]]
+    Mgood = [
+        [
+            [[7, 0, 0], [0, 3, 0], [0, 0, 3]],
+            [[0, 2, 0], [2, 0, 0], [0, 0, 0]],
+            [[0, 0, 2], [0, 0, 0], [2, 0, 0]],
+        ],
+        [
+            [[0, 2, 0], [2, 0, 0], [0, 0, 0]],
+            [[3, 0, 0], [0, 7, 0], [0, 0, 3]],
+            [[0, 0, 0], [0, 0, 2], [0, 2, 0]],
+        ],
+        [
+            [[0, 0, 2], [0, 0, 0], [2, 0, 0]],
+            [[0, 0, 0], [0, 0, 2], [0, 2, 0]],
+            [[3, 0, 0], [0, 3, 0], [0, 0, 7]],
+        ],
+    ]
     Mgood = 5 * np.array(Mgood)
     Mtest = material.stiffness(C)
     assert Mtest.ndim == 4
@@ -247,24 +252,21 @@ def test_NeoHookeanStress():
 
     C = 0.1 * np.eye(2) + 1
     PK2test = material.stress(C)
-    PK2good = [[-103.692, 103.356],
-               [103.356, -103.692]]
+    PK2good = [[-103.692, 103.356], [103.356, -103.692]]
     assert PK2test.ndim == 2
     assert PK2test.shape == (2, 2)
     np.testing.assert_almost_equal(PK2test, PK2good, decimal=3)
 
     C = 2 * np.eye(2) + 1
     PK2test = material.stress(C)
-    PK2good = [[12.098, -0.699],
-               [-0.699, 12.098]]
+    PK2good = [[12.098, -0.699], [-0.699, 12.098]]
     assert PK2test.ndim == 2
     assert PK2test.shape == (2, 2)
     np.testing.assert_almost_equal(PK2test, PK2good, decimal=3)
 
     C = np.eye(2) + 1
     PK2test = material.stress(C)
-    PK2good = [[8.826, 0.586],
-               [0.586, 8.826]]
+    PK2good = [[8.826, 0.586], [0.586, 8.826]]
     assert PK2test.ndim == 2
     assert PK2test.shape == (2, 2)
     np.testing.assert_almost_equal(PK2test, PK2good, decimal=3)
@@ -276,10 +278,10 @@ def test_NeoHookeanStiffness():
     material = elasticity.NeoHookeanElasticity(E, nu)
 
     C = np.eye(2)  # No deformation at all
-    Mgood = [[[[7, 0], [0, 3]],
-              [[0, 2], [2, 0]]],
-             [[[0, 2], [2, 0]],
-              [[3, 0], [0, 7]]]]
+    Mgood = [
+        [[[7, 0], [0, 3]], [[0, 2], [2, 0]]],
+        [[[0, 2], [2, 0]], [[3, 0], [0, 7]]],
+    ]
     Mgood = 5 * np.array(Mgood)
     Mtest = material.stiffness(C)
     assert Mtest.ndim == 4
@@ -287,45 +289,71 @@ def test_NeoHookeanStiffness():
     np.testing.assert_almost_equal(Mtest, Mgood)
 
     C = 0.1 * np.eye(2) + 1
-    Mgood = [[[[1602.624, -1456.93], [-1456.93, 1395.911]],
-              [[-1456.93, 1427.839], [1427.839, -1456.93]]],
-             [[[-1456.93, 1427.839], [1427.839, -1456.93]],
-              [[1395.911, -1456.93], [-1456.93, 1602.624]]]]
+    Mgood = [
+        [
+            [[1602.624, -1456.93], [-1456.93, 1395.911]],
+            [[-1456.93, 1427.839], [1427.839, -1456.93]],
+        ],
+        [
+            [[-1456.93, 1427.839], [1427.839, -1456.93]],
+            [[1395.911, -1456.93], [-1456.93, 1602.624]],
+        ],
+    ]
     Mtest = material.stiffness(C)
     assert Mtest.ndim == 4
     assert Mtest.shape == (2, 2, 2, 2)
     np.testing.assert_almost_equal(Mtest, Mgood, decimal=2)
 
     C = 2 * np.eye(2) + 1
-    Mgood = [[[[0.535, -0.178], [-0.178, 1.934]],
-              [[-0.178, -0.639], [-0.639, -0.178]]],
-             [[[-0.178, -0.639], [-0.639, -0.178]],
-              [[1.934, -0.178], [-0.178, 0.535]]]]
+    Mgood = [
+        [
+            [[0.535, -0.178], [-0.178, 1.934]],
+            [[-0.178, -0.639], [-0.639, -0.178]],
+        ],
+        [
+            [[-0.178, -0.639], [-0.639, -0.178]],
+            [[1.934, -0.178], [-0.178, 0.535]],
+        ],
+    ]
     Mtest = material.stiffness(C)
     assert Mtest.ndim == 4
     assert Mtest.shape == (2, 2, 2, 2)
     np.testing.assert_almost_equal(Mtest, Mgood, decimal=3)
 
     C = np.eye(2) + 1
-    Mgood = [[[[8.231, -4.115], [-4.115, 7.057]],
-              [[-4.115, 2.644], [2.644, -4.115]]],
-             [[[-4.115, 2.644], [2.644, -4.115]],
-              [[7.057, -4.115], [-4.115, 8.231]]]]
+    Mgood = [
+        [
+            [[8.231, -4.115], [-4.115, 7.057]],
+            [[-4.115, 2.644], [2.644, -4.115]],
+        ],
+        [
+            [[-4.115, 2.644], [2.644, -4.115]],
+            [[7.057, -4.115], [-4.115, 8.231]],
+        ],
+    ]
     Mtest = material.stiffness(C)
     assert Mtest.ndim == 4
     assert Mtest.shape == (2, 2, 2, 2)
     np.testing.assert_almost_equal(Mtest, Mgood, decimal=3)
 
     C = np.eye(3)  # No deformation at all
-    Mgood = [[[[7, 0, 0], [0, 3, 0], [0, 0, 3]],
-              [[0, 2, 0], [2, 0, 0], [0, 0, 0]],
-              [[0, 0, 2], [0, 0, 0], [2, 0, 0]]],
-             [[[0, 2, 0], [2, 0, 0], [0, 0, 0]],
-              [[3, 0, 0], [0, 7, 0], [0, 0, 3]],
-              [[0, 0, 0], [0, 0, 2], [0, 2, 0]]],
-             [[[0, 0, 2], [0, 0, 0], [2, 0, 0]],
-              [[0, 0, 0], [0, 0, 2], [0, 2, 0]],
-              [[3, 0, 0], [0, 3, 0], [0, 0, 7]]]]
+    Mgood = [
+        [
+            [[7, 0, 0], [0, 3, 0], [0, 0, 3]],
+            [[0, 2, 0], [2, 0, 0], [0, 0, 0]],
+            [[0, 0, 2], [0, 0, 0], [2, 0, 0]],
+        ],
+        [
+            [[0, 2, 0], [2, 0, 0], [0, 0, 0]],
+            [[3, 0, 0], [0, 7, 0], [0, 0, 3]],
+            [[0, 0, 0], [0, 0, 2], [0, 2, 0]],
+        ],
+        [
+            [[0, 0, 2], [0, 0, 0], [2, 0, 0]],
+            [[0, 0, 0], [0, 0, 2], [0, 2, 0]],
+            [[3, 0, 0], [0, 3, 0], [0, 0, 7]],
+        ],
+    ]
     Mgood = 5 * np.array(Mgood)
     Mtest = material.stiffness(C)
     assert Mtest.ndim == 4
@@ -333,33 +361,23 @@ def test_NeoHookeanStiffness():
     np.testing.assert_almost_equal(Mtest, Mgood)
 
     C = 2 * np.eye(3) + 0.5
-    Mgood = [[[[-0.84, 0.14, 0.14],
-               [0.14, 2.65, -0.55],
-               [0.14, -0.55, 2.65]],
-              [[0.14, -1.77, 0.33],
-               [-1.77, 0.14, 0.33],
-               [0.33, 0.33, -0.56]],
-              [[0.14, 0.33, -1.77],
-               [0.33, -0.56, 0.33],
-               [-1.77, 0.33, 0.14]]],
-             [[[0.14, -1.77, 0.33],
-               [-1.77, 0.14, 0.33],
-               [0.33, 0.33, -0.56]],
-              [[2.66, 0.14, -0.56],
-               [0.14, -0.84, 0.14],
-               [-0.56, 0.14, 2.66]],
-              [[-0.56, 0.33, 0.33],
-               [0.33, 0.14, -1.77],
-               [0.33, -1.77, 0.14]]],
-             [[[0.14, 0.33, -1.77],
-               [0.33, -0.56, 0.33],
-               [-1.77, 0.33, 0.14]],
-              [[-0.56, 0.33, 0.33],
-               [0.33, 0.14, -1.77],
-               [0.33, -1.77, 0.14]],
-              [[2.66, -0.56, 0.14],
-               [-0.56, 2.66, 0.14],
-               [0.14, 0.14, -0.84]]]]
+    Mgood = [
+        [
+            [[-0.84, 0.14, 0.14], [0.14, 2.65, -0.55], [0.14, -0.55, 2.65]],
+            [[0.14, -1.77, 0.33], [-1.77, 0.14, 0.33], [0.33, 0.33, -0.56]],
+            [[0.14, 0.33, -1.77], [0.33, -0.56, 0.33], [-1.77, 0.33, 0.14]],
+        ],
+        [
+            [[0.14, -1.77, 0.33], [-1.77, 0.14, 0.33], [0.33, 0.33, -0.56]],
+            [[2.66, 0.14, -0.56], [0.14, -0.84, 0.14], [-0.56, 0.14, 2.66]],
+            [[-0.56, 0.33, 0.33], [0.33, 0.14, -1.77], [0.33, -1.77, 0.14]],
+        ],
+        [
+            [[0.14, 0.33, -1.77], [0.33, -0.56, 0.33], [-1.77, 0.33, 0.14]],
+            [[-0.56, 0.33, 0.33], [0.33, 0.14, -1.77], [0.33, -1.77, 0.14]],
+            [[2.66, -0.56, 0.14], [-0.56, 2.66, 0.14], [0.14, 0.14, -0.84]],
+        ],
+    ]
     Mtest = material.stiffness(C)
     assert Mtest.ndim == 4
     assert Mtest.shape == (3, 3, 3, 3)

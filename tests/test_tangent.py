@@ -5,9 +5,9 @@
 """
 
 import numpy as np
+
+from hyper import elasticity, fem
 from hyper import gmsh2 as gmsh
-from hyper import elasticity
-from hyper import fem
 
 
 def vector_fct(x):
@@ -34,7 +34,7 @@ def computeKnum(FEmodel, U, DU=1e-5):
 
     for i in range(nNodes):
         for j in range(dim):
-            Ud[i, j] += DU / 2.
+            Ud[i, j] += DU / 2.0
             # R(U_nj + DU/2), residual "plus"
             Rp = FEmodel.computeResidual(Ud)
 
@@ -50,11 +50,11 @@ def computeKnum(FEmodel, U, DU=1e-5):
 
 def test_Quad11StVenantKirchhoff():
     inputfilename = "tests/msh/triangle-quad11.msh"
-    E = 210.e9
+    E = 210.0e9
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
 
-    with open(inputfilename, 'r') as meshfile:
+    with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
     FEmodel = fem.FEModel(mesh, material)
@@ -67,11 +67,11 @@ def test_Quad11StVenantKirchhoff():
 
 def test_Quad44StVenantKirchhoff():
     inputfilename = "tests/msh/triangle-quad44.msh"
-    E = 210.e9
+    E = 210.0e9
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
 
-    with open(inputfilename, 'r') as meshfile:
+    with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
     FEmodel = fem.FEModel(mesh, material)
@@ -84,11 +84,11 @@ def test_Quad44StVenantKirchhoff():
 
 def test_Quad11NeoHookean():
     inputfilename = "tests/msh/triangle-quad11.msh"
-    E = 210.e9
+    E = 210.0e9
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
 
-    with open(inputfilename, 'r') as meshfile:
+    with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
     FEmodel = fem.FEModel(mesh, material)
@@ -101,11 +101,11 @@ def test_Quad11NeoHookean():
 
 def test_Quad44NeoHookean():
     inputfilename = "tests/msh/triangle-quad44.msh"
-    E = 210.e9
+    E = 210.0e9
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
 
-    with open(inputfilename, 'r') as meshfile:
+    with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
     FEmodel = fem.FEModel(mesh, material)

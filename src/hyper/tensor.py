@@ -10,10 +10,10 @@
 import numpy as np
 import numpy.linalg as la
 
-
 ###############################################################################
 #                                   Vectors                                   #
 ###############################################################################
+
 
 def vector(d=2):
     """
@@ -25,6 +25,7 @@ def vector(d=2):
 ###############################################################################
 #                             2nd Order Tensors                               #
 ###############################################################################
+
 
 def tensor(d=2):
     """
@@ -113,6 +114,7 @@ def PK1toCauchy(F, P):
 def check_symmetric(a, rtol=1e-05, atol=1e-08):
     return np.allclose(a, a.T, rtol=rtol, atol=atol)
 
+
 ###############################################################################
 #                             4th Order Tensors                               #
 ###############################################################################
@@ -192,7 +194,7 @@ def MaterialToLagrangian(F, S, M):
     # print("M = " + str(M.shape))
 
     # value1 = np.einsum('iI,IJKL,kK->iJkL', F, M, F)
-    dPdF += np.einsum('iI,IJKL,kK->iJkL', F, M, F)
+    dPdF += np.einsum("iI,IJKL,kK->iJkL", F, M, F)
     # ident = np.eye(d)
     # w = outerProd4(ident, S)
     dPdF += np.einsum("ik,JL->iJkL", np.eye(d), S)

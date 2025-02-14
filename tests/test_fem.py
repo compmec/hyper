@@ -21,8 +21,9 @@ found in the exercise.
 """
 
 import numpy as np
-from hyper import gmsh2 as gmsh
+
 from hyper import fem
+from hyper import gmsh2 as gmsh
 
 
 def vector_fct(x):
@@ -63,7 +64,7 @@ def test_Tri14():
         E.append(FE_model.getStrainGreenLagrange(n).flatten())
 
     outputfilename = inputfilename.replace(".msh", "-val.msh")
-    with open(outputfilename, 'w') as outputfile:
+    with open(outputfilename, "w") as outputfile:
         gmsh.gmshOutput_mesh(outputfile, mesh)
 
         fieldname = "U: displacement field"
@@ -101,7 +102,7 @@ def test_Tri56():
         E.append(FE_model.getStrainGreenLagrange(n).flatten())
 
     outputfilename = inputfilename.replace(".msh", "-val.msh")
-    with open(outputfilename, 'w') as outputfile:
+    with open(outputfilename, "w") as outputfile:
         gmsh.gmshOutput_mesh(outputfile, mesh)
 
         fieldname = "U: displacement field"
@@ -139,7 +140,7 @@ def test_Quad11():
         E.append(FE_model.getStrainGreenLagrange(n).flatten())
 
     outputfilename = inputfilename.replace(".msh", "-val.msh")
-    with open(outputfilename, 'w') as outputfile:
+    with open(outputfilename, "w") as outputfile:
         gmsh.gmshOutput_mesh(outputfile, mesh)
 
         fieldname = "U: displacement field"
@@ -177,7 +178,7 @@ def test_Quad44():
         E.append(FE_model.getStrainGreenLagrange(n).flatten())
 
     outputfilename = inputfilename.replace(".msh", "-val.msh")
-    with open(outputfilename, 'w') as outputfile:
+    with open(outputfilename, "w") as outputfile:
         gmsh.gmshOutput_mesh(outputfile, mesh)
 
         fieldname = "U: displacement field"

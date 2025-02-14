@@ -4,9 +4,9 @@
 
 
 import numpy as np
+
+from hyper import elasticity, fem
 from hyper import gmsh2 as gmsh
-from hyper import fem
-from hyper import elasticity
 
 
 def vector_fct(x):
@@ -41,24 +41,24 @@ def computeTestValues(FEmodel, U):
 
 
 def writeFieldsOnGmshFile(fields, mesh, filename):
-    with open(filename, 'w') as file:
+    with open(filename, "w") as file:
         gmsh.gmshOutput_mesh(file, mesh)
 
-        for (fieldname, field) in fields["nodal"]:
+        for fieldname, field in fields["nodal"]:
             gmsh.gmshOutput_nodal(file, fieldname, field, 0, 0.0)
 
-        for (fieldname, field) in fields["element"]:
+        for fieldname, field in fields["element"]:
             gmsh.gmshOutput_element(file, fieldname, field, 0, 0.0)
 
 
 def test_Tri56StVenantKirchhoff():
     inputfilename = "tests/msh/triangle-tri56.msh"
     outputfilename = "tests/msh/triangle-tri56-StVenant-val.msh"
-    E = 210.e9
+    E = 210.0e9
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
 
-    with open(inputfilename, 'r') as meshfile:
+    with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
     FEmodel = fem.FEModel(mesh, material)
@@ -66,21 +66,24 @@ def test_Tri56StVenantKirchhoff():
 
     R, F, P = computeTestValues(FEmodel, U)
 
-    fields = {"nodal": [("U: Displacement", U),
-                        ("R: Residual", R)],
-              "element": [("F: Deformation Gradient", F),
-                          ("P: Engineering stress", P)]}
+    fields = {
+        "nodal": [("U: Displacement", U), ("R: Residual", R)],
+        "element": [
+            ("F: Deformation Gradient", F),
+            ("P: Engineering stress", P),
+        ],
+    }
     writeFieldsOnGmshFile(fields, mesh, outputfilename)
 
 
 def test_Quad44StVenantKirchhoff():
     inputfilename = "tests/msh/triangle-quad44.msh"
     outputfilename = "tests/msh/triangle-quad44-StVenant-val.msh"
-    E = 210.e9
+    E = 210.0e9
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
 
-    with open(inputfilename, 'r') as meshfile:
+    with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
     FEmodel = fem.FEModel(mesh, material)
@@ -88,21 +91,24 @@ def test_Quad44StVenantKirchhoff():
 
     R, F, P = computeTestValues(FEmodel, U)
 
-    fields = {"nodal": [("U: Displacement", U),
-                        ("R: Residual", R)],
-              "element": [("F: Deformation Gradient", F),
-                          ("P: Engineering stress", P)]}
+    fields = {
+        "nodal": [("U: Displacement", U), ("R: Residual", R)],
+        "element": [
+            ("F: Deformation Gradient", F),
+            ("P: Engineering stress", P),
+        ],
+    }
     writeFieldsOnGmshFile(fields, mesh, outputfilename)
 
 
 def test_Tri56NeoHookean():
     inputfilename = "tests/msh/triangle-tri56.msh"
     outputfilename = "tests/msh/triangle-tri56-NeoHookean-val.msh"
-    E = 10.e6
+    E = 10.0e6
     nu = 0.45
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
 
-    with open(inputfilename, 'r') as meshfile:
+    with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
     FEmodel = fem.FEModel(mesh, material)
@@ -110,21 +116,24 @@ def test_Tri56NeoHookean():
 
     R, F, P = computeTestValues(FEmodel, U)
 
-    fields = {"nodal": [("U: Displacement", U),
-                        ("R: Residual", R)],
-              "element": [("F: Deformation Gradient", F),
-                          ("P: Engineering stress", P)]}
+    fields = {
+        "nodal": [("U: Displacement", U), ("R: Residual", R)],
+        "element": [
+            ("F: Deformation Gradient", F),
+            ("P: Engineering stress", P),
+        ],
+    }
     writeFieldsOnGmshFile(fields, mesh, outputfilename)
 
 
 def test_Quad44NeoHookean():
     inputfilename = "tests/msh/triangle-tri56.msh"
     outputfilename = "tests/msh/triangle-tri56-NeoHookean-val.msh"
-    E = 10.e6
+    E = 10.0e6
     nu = 0.45
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
 
-    with open(inputfilename, 'r') as meshfile:
+    with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
     FEmodel = fem.FEModel(mesh, material)
@@ -132,10 +141,13 @@ def test_Quad44NeoHookean():
 
     R, F, P = computeTestValues(FEmodel, U)
 
-    fields = {"nodal": [("U: Displacement", U),
-                        ("R: Residual", R)],
-              "element": [("F: Deformation Gradient", F),
-                          ("P: Engineering stress", P)]}
+    fields = {
+        "nodal": [("U: Displacement", U), ("R: Residual", R)],
+        "element": [
+            ("F: Deformation Gradient", F),
+            ("P: Engineering stress", P),
+        ],
+    }
     writeFieldsOnGmshFile(fields, mesh, outputfilename)
 
 

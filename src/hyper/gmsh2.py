@@ -3,6 +3,7 @@
 # Functions to write Gmsh output files
 #
 import numpy as np
+
 from . import mesh as msh
 
 #
@@ -32,7 +33,7 @@ def gmshInput_mesh(inp, d=2):
     # --- version 2
     #
     if fmt == 2:
-        while (l < len(lines)):
+        while l < len(lines):
             if lines[l].startswith("$Nodes"):
                 l += 1
                 nNodes = int(lines[l].strip())
@@ -47,8 +48,12 @@ def gmshInput_mesh(inp, d=2):
                     elif d == 2:
                         mesh.addNode(lbl, float(words[1]), float(words[2]))
                     elif d == 3:
-                        mesh.addNode(lbl, float(words[1]), float(
-                            words[2]), float(words[3]))
+                        mesh.addNode(
+                            lbl,
+                            float(words[1]),
+                            float(words[2]),
+                            float(words[3]),
+                        )
             elif lines[l].startswith("$Elements"):
                 l += 1
                 nElems = int(lines[l].strip())
@@ -59,16 +64,16 @@ def gmshInput_mesh(inp, d=2):
                     typ = int(words[1])
                     ntg = int(words[2])
                     iNodes = []
-                    if (d == 1 and typ == 1):  # 2-node edge
+                    if d == 1 and typ == 1:  # 2-node edge
                         iNodes.append(iTab[int(words[ntg + 3])])
                         iNodes.append(iTab[int(words[ntg + 4])])
                         mesh.addElement(lbl, typ, iNodes)
-                    elif (d == 2 and typ == 2):  # 3-node triangle
+                    elif d == 2 and typ == 2:  # 3-node triangle
                         iNodes.append(iTab[int(words[ntg + 3])])
                         iNodes.append(iTab[int(words[ntg + 4])])
                         iNodes.append(iTab[int(words[ntg + 5])])
                         mesh.addElement(lbl, typ, iNodes)
-                    elif (d == 2 and typ == 3):  # 4-node quadrangle
+                    elif d == 2 and typ == 3:  # 4-node quadrangle
                         iNodes.append(iTab[int(words[ntg + 3])])
                         iNodes.append(iTab[int(words[ntg + 4])])
                         iNodes.append(iTab[int(words[ntg + 5])])
@@ -80,7 +85,7 @@ def gmshInput_mesh(inp, d=2):
     # --- version 4
     #
     elif fmt == 4:
-        while (l < len(lines)):
+        while l < len(lines):
             if lines[l].startswith("$Nodes"):
                 l += 1
                 words = lines[l].split()
@@ -97,7 +102,8 @@ def gmshInput_mesh(inp, d=2):
                     if param != 0:
                         # != instead of <> in Python 3
                         raise ValueError(
-                            'parametric nodes are not handled for now')
+                            "parametric nodes are not handled for now"
+                        )
                     numNodes = int(words[3])
                     for n in range(numNodes):
                         l += 1
@@ -110,8 +116,12 @@ def gmshInput_mesh(inp, d=2):
                         elif d == 2:
                             mesh.addNode(lbl, float(words[1]), float(words[2]))
                         elif d == 3:
-                            mesh.addNode(lbl, float(words[1]), float(
-                                words[2]), float(words[3]))
+                            mesh.addNode(
+                                lbl,
+                                float(words[1]),
+                                float(words[2]),
+                                float(words[3]),
+                            )
             elif lines[l].startswith("$Elements"):
                 l += 1
                 words = lines[l].split()
@@ -129,16 +139,16 @@ def gmshInput_mesh(inp, d=2):
                         words = lines[l].split()
                         lbl = int(words[0])
                         iNodes = []
-                        if (d == 1 and typ == 1):  # 2-node edge
+                        if d == 1 and typ == 1:  # 2-node edge
                             iNodes.append(iTab[int(words[1])])
                             iNodes.append(iTab[int(words[2])])
                             mesh.addElement(lbl, typ, iNodes)
-                        elif (d == 2 and typ == 2):  # 3-node triangle
+                        elif d == 2 and typ == 2:  # 3-node triangle
                             iNodes.append(iTab[int(words[1])])
                             iNodes.append(iTab[int(words[2])])
                             iNodes.append(iTab[int(words[3])])
                             mesh.addElement(lbl, typ, iNodes)
-                        elif (d == 2 and typ == 3):  # 4-node quadrangle
+                        elif d == 2 and typ == 3:  # 4-node quadrangle
                             iNodes.append(iTab[int(words[1])])
                             iNodes.append(iTab[int(words[2])])
                             iNodes.append(iTab[int(words[3])])
@@ -149,8 +159,10 @@ def gmshInput_mesh(inp, d=2):
         assert numNode + 1 == nNodes
     else:
         raise ValueError(
-            'Format of the meshfile is incorrect. Verify the header $MeshFormat')
+            "Format of the meshfile is incorrect. Verify the header $MeshFormat"
+        )
     return mesh
+
 
 #
 # Write mesh data in Gmsh v.2 format
@@ -181,13 +193,15 @@ def gmshOutput_mesh(out, mesh):
     out.write("$Elements\n")
     out.write("%d\n" % mesh.nElements())
     for n in range(mesh.nElements()):
-        out.write("%d %d %d %d %d" %
-                  (n + 1, mesh.getElement(n).getType(), 2, 1, 1))
+        out.write(
+            "%d %d %d %d %d" % (n + 1, mesh.getElement(n).getType(), 2, 1, 1)
+        )
         for i in range(mesh.getElement(n).nNodes()):
             out.write(" %d" % (mesh.getElement(n).getNode(i) + 1))
         out.write("\n")
     out.write("$EndElements\n")
     out.flush()
+
 
 #
 # Write nodal field defined on a mesh, in Gmsh V.2 format
@@ -205,15 +219,15 @@ def gmshOutput_nodal(out, label, V, it, t):
     """Write nodal field in Gmsh format"""
     out.write("$NodeData\n")
     out.write("%d\n" % 1)
-    out.write("\"%s\"\n" % label)
+    out.write('"%s"\n' % label)
     out.write("%d\n" % 1)
     out.write("%f\n" % t)
     out.write("%d\n" % 3)
     out.write("%d\n" % it)
     sz0 = np.shape(V)[1]
-    if (sz0 == 2):
+    if sz0 == 2:
         sz1 = 3
-    elif(sz0 > 3):
+    elif sz0 > 3:
         sz1 = 9
     else:
         sz1 = 1
@@ -244,15 +258,15 @@ def gmshOutput_element(out, label, V, it, t):
     """Write element field in Gmsh format"""
     out.write("$ElementData\n")
     out.write("%d\n" % 1)
-    out.write("\"%s\"\n" % label)
+    out.write('"%s"\n' % label)
     out.write("%d\n" % 1)
     out.write("%f\n" % t)
     out.write("%d\n" % 3)
     out.write("%d\n" % it)
     sz0 = np.shape(V)[1]
-    if (sz0 == 2 or sz0 == 3):
+    if sz0 == 2 or sz0 == 3:
         sz1 = 3
-    elif(sz0 > 3):
+    elif sz0 > 3:
         sz1 = 9
     else:
         sz1 = 1
@@ -260,15 +274,17 @@ def gmshOutput_element(out, label, V, it, t):
     out.write("%d\n" % np.shape(V)[0])
     for n in range(np.shape(V)[0]):
         out.write("%d" % (n + 1))
-        if (sz1 == 3):
+        if sz1 == 3:
             for i in range(sz0):
                 out.write(" %13.6e" % V[n][i])
             for i in range(sz0, sz1):
                 out.write(" %13.6e" % 0.0)
-        elif (sz1 == 9):
-            if (sz0 == 4):
-                out.write(" %13.6e %13.6e %13.6e %13.6e %13.6e" %
-                          (V[n][0], V[n][1], 0.0, V[n][2], V[n][3]))
+        elif sz1 == 9:
+            if sz0 == 4:
+                out.write(
+                    " %13.6e %13.6e %13.6e %13.6e %13.6e"
+                    % (V[n][0], V[n][1], 0.0, V[n][2], V[n][3])
+                )
                 for i in range(4):
                     out.write(" %13.6e" % 0.0)
             else:

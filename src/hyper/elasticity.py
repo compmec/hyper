@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from abc import ABC, abstractmethod  # For abstract classes
-from . import tensor
+
 import numpy as np
+
+from . import tensor
 
 
 class Elasticity(ABC):
@@ -11,10 +13,11 @@ class Elasticity(ABC):
     1ST_lamdaE_CONSTANT is the frist lamé parameter lambda
     2ST_lamdaE_CONSTANT is the second lamé parameter mu
     """
+
     prop = dict()
 
     def __init__(self, E, nu):
-        G = E / (2 * (1. + nu))
+        G = E / (2 * (1.0 + nu))
         K = E / (3 * (1 - 2 * nu))
         lamda = K - (2 / 3) * G
         mu = G
@@ -88,7 +91,9 @@ class StVenantKirchhoffElasticity(Elasticity):
         lamda = self.get1LAME()
         mu = self.get2LAME()
         EL = 0.5 * (C - tensor.I(len(C)))  # Lagrangian strain E
-        phi = lamda / 2. * (tensor.trace(EL))**2 + mu * np.tensordot(EL, EL, 2)
+        phi = lamda / 2.0 * (tensor.trace(EL)) ** 2 + mu * np.tensordot(
+            EL, EL, 2
+        )
         return phi
 
     def stress(self, C):
@@ -139,9 +144,9 @@ class NeoHookeanElasticity(Elasticity):
             C = np.zeros((3, 3))
             C[:2, :2] = K[:, :]
         J = np.sqrt(tensor.det(C))  # J = det(F) and det(C) = J^2
-        part1 = (mu / 2) * (tensor.trace(C) - 3.)
+        part1 = (mu / 2) * (tensor.trace(C) - 3.0)
         part2 = mu * np.log(J)
-        part3 = (lamda / 2) * (np.log(J))**2
+        part3 = (lamda / 2) * (np.log(J)) ** 2
         phi = part1 - part2 + part3
         return phi
 

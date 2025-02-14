@@ -45,7 +45,7 @@ class Element:
     def __init__(self, i, t, n):
         """Create element of label i, type t, with list of nodes n"""
         self.id = i
-        self.type = t    # 2:Triangle, 3:Quadrangle
+        self.type = t  # 2:Triangle, 3:Quadrangle
         self.nodes = []  # list of nodes labels (int)
         self.nodes.extend(n)
 
@@ -75,7 +75,9 @@ class MeshData:
         """Create mesh of dimension d"""
         self.dim = d  # dimension of the mesh as an integer, 2 by default
         self.nodes = []  # list of all the nodes in the mesh as Node instances
-        self.elems = []  # list of all the elements in the mesh as Element instances
+        self.elems = (
+            []
+        )  # list of all the elements in the mesh as Element instances
 
     def getDimension(self):
         # Returns the dimention of the Mesh
@@ -84,7 +86,7 @@ class MeshData:
     def getDim(self):
         return self.getDimension()
 
-    def addNode(self, i, x, y=0., z=0.):
+    def addNode(self, i, x, y=0.0, z=0.0):
         self.nodes.append(Node(i, x, y, z))
 
     def getNode(self, i):

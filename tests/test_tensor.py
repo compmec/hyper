@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+
 from hyper import tensor
 
 
@@ -13,7 +14,7 @@ def test_vector():
     vectest[1] = 2.0
     assert type(vectest) is np.ndarray
     assert vectest.ndim == 1
-    assert vectest.shape == (2, )
+    assert vectest.shape == (2,)
     np.testing.assert_array_equal(vectest, [1, 2])
 
     # Testing attribution of array values
@@ -48,16 +49,13 @@ def test_tensor():
 
 def test_I():
     Itest = tensor.I()
-    Igood = [[1, 0],
-             [0, 1]]
+    Igood = [[1, 0], [0, 1]]
     assert type(Itest) is np.ndarray
     assert Itest.shape == (2, 2)
     np.testing.assert_array_equal(Itest, Igood)
 
     Itest = tensor.I(3)
-    Igood = [[1, 0, 0],
-             [0, 1, 0],
-             [0, 0, 1]]
+    Igood = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
     assert type(Itest) is np.ndarray
     assert Itest.shape == (3, 3)
     np.testing.assert_array_equal(Itest, Igood)
@@ -65,8 +63,7 @@ def test_I():
 
 def test_outerProd():
     v = [1, 2]
-    Mgood = [[1, 2],
-             [2, 4]]
+    Mgood = [[1, 2], [2, 4]]
     Mtest = tensor.outerProd(v, v)
     assert Mtest.ndim == 2
     assert Mtest.shape == (2, 2)
@@ -74,47 +71,39 @@ def test_outerProd():
 
 
 def test_det():
-    M = [[1, 2],
-         [2, 4]]
+    M = [[1, 2], [2, 4]]
     detgood = 0
     dettest = tensor.det(M)
     assert dettest == detgood
 
-    M = [[1, 2],
-         [2, 5]]
+    M = [[1, 2], [2, 5]]
     detgood = 1
     dettest = tensor.det(M)
     assert dettest == detgood
 
 
 def test_trace():
-    M = [[1, 2],
-         [2, 4]]
+    M = [[1, 2], [2, 4]]
     trgood = 5
     trtest = tensor.trace(M)
     assert trtest == trgood
 
-    M = [[1, 2],
-         [2, 5]]
+    M = [[1, 2], [2, 5]]
     trgood = 6
     trtest = tensor.trace(M)
     assert trtest == trgood
 
 
 def test_inv():
-    M = [[1, 0],
-         [0, 1]]
-    Vgood = [[1, 0],
-             [0, 1]]
+    M = [[1, 0], [0, 1]]
+    Vgood = [[1, 0], [0, 1]]
     Vtest = tensor.inv(M)
     assert Vtest.ndim == 2
     assert Vtest.shape == (2, 2)
     np.testing.assert_array_equal(Vtest, Vgood)
 
-    M = [[2, 3],
-         [2, 5]]
-    Vgood = [[1.25, -0.75],
-             [-0.5, 0.5]]
+    M = [[2, 3], [2, 5]]
+    Vgood = [[1.25, -0.75], [-0.5, 0.5]]
     Vtest = tensor.inv(M)
     assert Vtest.ndim == 2
     assert Vtest.shape == (2, 2)
@@ -122,10 +111,8 @@ def test_inv():
 
 
 def test_rightCauchyGreen():
-    F = [[2, 3],
-         [2, 5]]
-    Cgood = [[8, 16],
-             [16, 34]]
+    F = [[2, 3], [2, 5]]
+    Cgood = [[8, 16], [16, 34]]
     Ctest = tensor.rightCauchyGreen(F)
     assert Ctest.ndim == 2
     assert Ctest.shape == (2, 2)
@@ -133,10 +120,8 @@ def test_rightCauchyGreen():
 
 
 def test_leftCauchyGreen():
-    F = [[2, 3],
-         [2, 5]]
-    Bgood = [[13, 19],
-             [19, 29]]
+    F = [[2, 3], [2, 5]]
+    Bgood = [[13, 19], [19, 29]]
     Btest = tensor.leftCauchyGreen(F)
     assert Btest.ndim == 2
     assert Btest.shape == (2, 2)
@@ -156,10 +141,10 @@ def test_tensor4():
 
 
 def test_II():
-    IIgood = [[[[1, 0], [0, 0]],
-               [[0, 1], [0, 0]]],
-              [[[0, 0], [1, 0]],
-               [[0, 0], [0, 1]]]]
+    IIgood = [
+        [[[1, 0], [0, 0]], [[0, 1], [0, 0]]],
+        [[[0, 0], [1, 0]], [[0, 0], [0, 1]]],
+    ]
     IItest = tensor.II()
     assert IItest.ndim == 4
     assert IItest.shape == (2, 2, 2, 2)
@@ -168,10 +153,10 @@ def test_II():
 
 def test_IISym():
     IItest = tensor.IISym()
-    IIgood = [[[[1, 0], [0, 0]],
-               [[0, 0.5], [0.5, 0]]],
-              [[[0, 0.5], [0.5, 0]],
-               [[0, 0], [0, 1]]]]
+    IIgood = [
+        [[[1, 0], [0, 0]], [[0, 0.5], [0.5, 0]]],
+        [[[0, 0.5], [0.5, 0]], [[0, 0], [0, 1]]],
+    ]
     assert IItest.ndim == 4
     assert IItest.shape == (2, 2, 2, 2)
     np.testing.assert_array_equal(IItest, IIgood)
@@ -179,22 +164,21 @@ def test_IISym():
 
 def test_KK():
     KKtest = tensor.KK()
-    KKgood = [[[[1, 0], [0, 1]],
-               [[0, 0], [0, 0]]],
-              [[[0, 0], [0, 0]],
-               [[1, 0], [0, 1]]]]
+    KKgood = [
+        [[[1, 0], [0, 1]], [[0, 0], [0, 0]]],
+        [[[0, 0], [0, 0]], [[1, 0], [0, 1]]],
+    ]
     assert KKtest.ndim == 4
     assert KKtest.shape == (2, 2, 2, 2)
     np.testing.assert_array_equal(KKtest, KKgood)
 
 
 def test_outerProd4():
-    C = [[8, 16],
-         [16, 34]]
-    Mgood = [[[[64, 128], [128, 272]],
-              [[128, 256], [256, 544]]],
-             [[[128, 256], [256, 544]],
-              [[272, 544], [544, 1156]]]]
+    C = [[8, 16], [16, 34]]
+    Mgood = [
+        [[[64, 128], [128, 272]], [[128, 256], [256, 544]]],
+        [[[128, 256], [256, 544]], [[272, 544], [544, 1156]]],
+    ]
     Mtest = tensor.outerProd4(C, C)
     assert Mtest.ndim == 4
     assert Mtest.shape == (2, 2, 2, 2)

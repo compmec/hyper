@@ -18,11 +18,12 @@ compare_meshfile.geo script, that must be opened with Gmsh.
 """
 
 import numpy as np
+
 import hyper.gmsh2 as gmsh
 
 
 def scalar_fct(x):
-    f = x[0]**2 + x[1]**2
+    f = x[0] ** 2 + x[1] ** 2
     return f
 
 
@@ -107,6 +108,7 @@ def test_ReadQuad44():
 #    TESTING THE POSITION OF NODES
 #################################################
 
+
 def test_PositionNodesTri8():
     # Reading the mesh
     inputfilename = "tests/msh/meshfile-tri8.msh"
@@ -120,8 +122,10 @@ def test_PositionNodesTri8():
     for i in range(nNodes):
         Node_i = mesh.getNode(i)
         X[i] = Node_i.getX()
-    Xgood = [[0, 1, 1, 0, 0.5, 0.5, 0.25, 0.75],
-             [0, 0, 0.3, 0.3, 0, 0.3, 0.15, 0.15]]
+    Xgood = [
+        [0, 1, 1, 0, 0.5, 0.5, 0.25, 0.75],
+        [0, 0, 0.3, 0.3, 0, 0.3, 0.15, 0.15],
+    ]
     Xgood = np.array(Xgood).T
     np.testing.assert_almost_equal(X, Xgood)
 
@@ -138,8 +142,10 @@ def test_PositionNodesQuad8():
     for i in range(nNodes):
         Node_i = mesh.getNode(i)
         X[i] = Node_i.getX()
-    Xgood = [[0, 20, 20, 0, 5, 10, 15, 20, 15, 10, 5, 0, 10, 5, 15],
-             [0, 0, 6, 6, 0, 0, 0, 3, 6, 6, 6, 3, 3, 3, 3]]
+    Xgood = [
+        [0, 20, 20, 0, 5, 10, 15, 20, 15, 10, 5, 0, 10, 5, 15],
+        [0, 0, 6, 6, 0, 0, 0, 3, 6, 6, 6, 3, 3, 3, 3],
+    ]
     Xgood = np.array(Xgood).T / 20
     np.testing.assert_almost_equal(X, Xgood)
 
@@ -147,6 +153,7 @@ def test_PositionNodesQuad8():
 # ################################################
 # #  TESTING FIELDS
 # ################################################
+
 
 def test_FieldsTri8():
     inputfilename = "tests/msh/meshfile-tri8.msh"
@@ -171,13 +178,14 @@ def test_FieldsTri8():
 
     # Writting the results in a mesh
     outputfilename = inputfilename.replace(".msh", "-val.msh")
-    with open(outputfilename, 'w') as outputfile:
+    with open(outputfilename, "w") as outputfile:
         # Write the base mesh
         gmsh.gmshOutput_mesh(outputfile, mesh)
 
         # Write scalar field
-        gmsh.gmshOutput_nodal(outputfile, "scalar field", V,
-                              it=0, t=0.0)  # write nodal field 'V'
+        gmsh.gmshOutput_nodal(
+            outputfile, "scalar field", V, it=0, t=0.0
+        )  # write nodal field 'V'
 
         # Write vectorial field
         gmsh.gmshOutput_nodal(outputfile, "VectorField", U, it=0, t=0)
@@ -206,13 +214,14 @@ def test_FieldsQuad8():
 
     # Writting the results in a mesh
     outputfilename = inputfilename.replace(".msh", "-val.msh")
-    with open(outputfilename, 'w') as outputfile:
+    with open(outputfilename, "w") as outputfile:
         # Write the base mesh
         gmsh.gmshOutput_mesh(outputfile, mesh)
 
         # Write scalar field
-        gmsh.gmshOutput_nodal(outputfile, "scalar field", V,
-                              it=0, t=0.0)  # write nodal field 'V'
+        gmsh.gmshOutput_nodal(
+            outputfile, "scalar field", V, it=0, t=0.0
+        )  # write nodal field 'V'
 
         # Write vectorial field
         gmsh.gmshOutput_nodal(outputfile, "VectorField", U, it=0, t=0)

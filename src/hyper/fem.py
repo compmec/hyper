@@ -5,14 +5,14 @@
 
 
 import numpy as np
-from . import tensor
-from . import geometry
 from scipy.linalg import polar
 
+from . import geometry, tensor
 
 ########################################################################
 #          Definition of elements for Finite Elements Method           #
 ########################################################################
+
 
 class FiniteElement:
     """
@@ -26,13 +26,13 @@ class FiniteElement:
         #
         self.calculate_shapes(t, xNod)
 
-        self.F = []        # deformation gradient F = Grad(u) + I
-        self.hencky = []   # hencky strain ln(V) with F = V.R
-        self.E_GL = []     # lagrangian strain E = 1/2 (C - I)
-        self.E_EA = []     # E_EA strain e = 1/2 (I - b^-1)
-        self.PK1 = []      # piola kirchoff I : P = F*S
-        self.sigma = []    # cauchy stress : \sigma
-        self.K = []        # lagrangian tangent operator dP/dF
+        self.F = []  # deformation gradient F = Grad(u) + I
+        self.hencky = []  # hencky strain ln(V) with F = V.R
+        self.E_GL = []  # lagrangian strain E = 1/2 (C - I)
+        self.E_EA = []  # E_EA strain e = 1/2 (I - b^-1)
+        self.PK1 = []  # piola kirchoff I : P = F*S
+        self.sigma = []  # cauchy stress : \sigma
+        self.K = []  # lagrangian tangent operator dP/dF
         d = self.getDim()  # space dimension
         npg = self.getNIntPts()
         for n in range(npg):
@@ -133,14 +133,14 @@ class FiniteElement:
             self.E_GL[i] = 0.5 * (C - tensor.I(len(C)))
             # compute spatial description
             # from scipy.linalg.polar() method with u=R and p=V,
-            _, V = polar(F, side='left')
+            _, V = polar(F, side="left")
             # replace pure zeros by very low values to prevent "nan" in np.log(V)
             V[V < 1e-10] = 1e-15
             self.hencky[i] = np.log(V)  # ln(V) with F = V.R, "true" strain
             b = tensor.leftCauchyGreen(F)
             self.E_EA[i] = 0.5 * (tensor.I(len(b)) - tensor.inv(b))
             ###
-            if (mater == 0):  # skip next lines: do not compute stress
+            if mater == 0:  # skip next lines: do not compute stress
                 # print("Whahat")
                 continue
             # compute PK2 stress tensor and material tangent operator M=2*dS/dC
@@ -224,7 +224,7 @@ class FEModel:
                 nodei = theMesh.getNode(label_nodei)
                 xnodei = nodei.getX()
                 # Since we don't need z, we cut it out
-                xnodei = xnodei[:self.dim]
+                xnodei = xnodei[: self.dim]
                 xNod.append(xnodei)
             xNod = np.array(xNod)
             new_FiniteElement = FiniteElement(elem.type, xNod)
@@ -280,7 +280,8 @@ class FEModel:
         """
         if not isinstance(e, (int)):
             raise Exception(
-                "The element 'e' in 'extract' function is not a integer")
+                "The element 'e' in 'extract' function is not a integer"
+            )
         # print("index = " + str(index))
         connect_e = self.connect[e]
         # print("connect_e = " + str(connect_e))
@@ -409,7 +410,7 @@ class FEModel:
         return avg
 
     def getStrainEulerAlmansi(self, n):
-        """ Return average of EA strain at all integration points of element n"""
+        """Return average of EA strain at all integration points of element n"""
         avg = tensor.tensor(self.dim)
         for tens in self.elems[n].E_EA:
             avg += tens

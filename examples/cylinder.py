@@ -42,6 +42,7 @@ with (a,b) constants which depend on the loading and the material properties.
 """
 import os
 import sys
+
 sys.path.append("../src/")
 sys.path.append("../geo/")
 sys.path.append("tests/msh/")
@@ -55,7 +56,7 @@ import errno
 
 
 def mkdir_p(path):
-    """ make directory at 'path' (full or relative) if not existing """
+    """make directory at 'path' (full or relative) if not existing"""
     try:
         os.makedirs(path)
     except OSError as exc:  # Python >2.5
@@ -117,11 +118,11 @@ def verify(U, Uref, bcDofs, TOLERANCE=1e-9):
         raise Exception("U[bcDofs] != Uref[bcDofs]")
 
 
-print('============================================')
-print('=                                          =')
-print('=      2D plane strain thick cylinder      =')
-print('=                                          =')
-print('============================================')
+print("============================================")
+print("=                                          =")
+print("=      2D plane strain thick cylinder      =")
+print("=                                          =")
+print("============================================")
 
 
 VERBOSE = True
@@ -140,12 +141,12 @@ material = "rubber"
 
 if material == "steel":
     # steel
-    matmodel = 'StVenant'
+    matmodel = "StVenant"
     Eyoung = 210e5  # Young's modulus (Pa)
     nu = 0.3  # Poisson's ratio
 else:
     # filled rubber (very stiff):
-    matmodel = 'NeoHookean'
+    matmodel = "NeoHookean"
     Eyoung = 10e6  # Young's modulus (Pa)
     nu = 0.45  # Poisson's ratio
 
@@ -164,7 +165,7 @@ if VERBOSE:
 #      ITERATION PARAMETERS     #
 #################################
 nSteps = 10  # number of steps in the incremental loading loop
-tStep = 1. / nSteps  # size of the steps
+tStep = 1.0 / nSteps  # size of the steps
 # rdisp = 0.00001  # constant radial displacement on interior boundary (StVenant)
 rdisp = 0.0001  # constant radial displacement on interior boundary (StVenant)
 # rdisp = 0.01 #constant radial displacement on interior boundary (NeoHookean)
@@ -209,7 +210,7 @@ basemesh = "cylinder-custom.msh"
 # basemesh = "cylinder-quad_coarse.msh"
 # basemesh = "cylinder-quad_refined.msh"
 
-basegeo = 'cylinder.geo'
+basegeo = "cylinder.geo"
 if VERBOSE:
     print("############################")
     print("#     FILES AND FOLDERS    #")
@@ -227,10 +228,12 @@ dirout = os.path.join(msh_folder, matmodel)
 
 with open(geo_folder + basegeo) as geomfile:
     lines = geomfile.readlines()
-    Ri = float(lines[0].strip().strip(";").split(
-        " = ")[1])  # interior radius (m)
-    Re = float(lines[1].strip().strip(";").split(
-        " = ")[1])  # exterior radius (m)
+    Ri = float(
+        lines[0].strip().strip(";").split(" = ")[1]
+    )  # interior radius (m)
+    Re = float(
+        lines[1].strip().strip(";").split(" = ")[1]
+    )  # exterior radius (m)
 
 if VERBOSE:
     print("    Geometry cylinder:")
@@ -239,7 +242,7 @@ if VERBOSE:
 
 
 inputfile = msh_folder + basemesh
-meshfile = open(inputfile, 'r')
+meshfile = open(inputfile, "r")
 mesh = gmsh.gmshInput_mesh(meshfile, d=2)
 meshfile.close()
 dim = mesh.dim  # dimension of the problem
@@ -257,17 +260,17 @@ if VERBOSE:
 #          GSMH OUTPUT          #
 #################################
 
-mesh_name = basemesh.split('-')[0]
+mesh_name = basemesh.split("-")[0]
 # 'tri_coarse' = element type + mesh refinement
-mesh_type = basemesh.split('-')[1][:-4]
+mesh_type = basemesh.split("-")[1][:-4]
 # subdirectory for output files
 new_folder_name = mesh_type
 
 dirout = os.path.join(out_folder + matmodel, new_folder_name)
 mkdir_p(dirout)  # create directory for output files if not already existing
-outputfile = mesh_name + '-results_Nsteps-' + str(int(nSteps)) + ".msh"
+outputfile = mesh_name + "-results_Nsteps-" + str(int(nSteps)) + ".msh"
 outputfile = os.path.join(dirout, outputfile)
-gmsh_out = open(outputfile, 'w')
+gmsh_out = open(outputfile, "w")
 gmsh.gmshOutput_mesh(gmsh_out, mesh)
 
 plot.plot_mesh(mesh, label="Before", color="b")
@@ -277,7 +280,7 @@ plot.plot_mesh(mesh, label="Before", color="b")
 #         PREPROSSESING         #
 #################################
 
-#--- boundary conditions
+# --- boundary conditions
 #
 # On the left side of the quarter-cylinder (X=0), the displacements in the x-direction are fixed (u_x =0)
 # At the bottom of the quarter-cylinder (Y=0), the displacements in the y-direction are fixed (u_y=0)
@@ -352,9 +355,9 @@ freeDofs = np.delete(listDofs, bcDofs)
 freeDofs = list(np.sort(freeDofs))
 # display fixed degrees of freedom
 if VERBOSE:
-    print('############################')
-    print('#      PRE PROCESSING      #')
-    print('############################')
+    print("############################")
+    print("#      PRE PROCESSING      #")
+    print("############################")
     print("    Mesh information:")
     print("        Total nodes: %d" % nNodes)
     print("        Total elements: %d" % nElements)
@@ -380,17 +383,17 @@ if VERBOSE:
 # stop()
 
 #
-#--- create material model instance
+# --- create material model instance
 #
 if matmodel == "StVenant":
     material = elasticity.StVenantKirchhoffElasticity(Eyoung, nu)
 elif matmodel == "NeoHookean":
     material = elasticity.NeoHookeanElasticity(Eyoung, nu)
 else:
-    raise(KeyError, "matmodel must be one of 'StVenant', 'NeoHookean'")
+    raise (KeyError, "matmodel must be one of 'StVenant', 'NeoHookean'")
 
 #
-#--- create FE model instance
+# --- create FE model instance
 #
 model = fem.FEModel(mesh, material)
 
@@ -426,12 +429,12 @@ K = np.zeros((nDofs, nDofs))
 #           SIMULATION          #
 #################################
 if VERBOSE:
-    print('############################')
-    print('#        SIMULATION        #')
-    print('############################')
+    print("############################")
+    print("#        SIMULATION        #")
+    print("############################")
 start_time = datetime.now()  # measure time for the simulation
 time = 0.0  # final time is nSteps x tStep = nSteps x (1/nSteps) = 1
-itermoy = 0.  # average number of iterations per time step
+itermoy = 0.0  # average number of iterations per time step
 # prescribed displacement per step on the right hand side of the membrane
 displacements = []
 reactions = []  # corresponding reaction per step
@@ -524,14 +527,16 @@ for iStep in range(nSteps):  # loop on time steps --> incremental loading
 
     norm = np.linalg.norm(R)
     test = TOLERANCE * norm
-    if (test < PRECISION):
+    if test < PRECISION:
         test = PRECISION
     iteration = 0
     if VERBOSE:
-        print('    *** Iteration %02d: residual norm =%.3e ***' %
-              (iteration, norm))
+        print(
+            "    *** Iteration %02d: residual norm =%.3e ***"
+            % (iteration, norm)
+        )
 
-    while (norm > test):  # Newton-Raphson iterations
+    while norm > test:  # Newton-Raphson iterations
 
         # compute correction
         # (U1, U2) = cut(U, bcDofs, freeDofs)
@@ -562,8 +567,10 @@ for iStep in range(nSteps):  # loop on time steps --> incremental loading
         norm = np.linalg.norm(R2)
         iteration = iteration + 1
         if VERBOSE:
-            print('    *** Iteration %02d: residual norm =%.3e ***' %
-                  (iteration, norm))
+            print(
+                "    *** Iteration %02d: residual norm =%.3e ***"
+                % (iteration, norm)
+            )
 
         # =====================================================================
         if iteration == ITERMAX:
@@ -591,7 +598,7 @@ for iStep in range(nSteps):  # loop on time steps --> incremental loading
     reactions.append(nodalForce)  # (N)
     displacements.append(uint)  # (m)
     #
-    #--- get strain and stress tensor fields for current time step
+    # --- get strain and stress tensor fields for current time step
     #
     E = []
     P = []
@@ -605,17 +612,21 @@ for iStep in range(nSteps):  # loop on time steps --> incremental loading
         euler.append(model.getStrainEulerAlmansi(n).flatten())
         sigma.append(model.getStressCauchy(n).flatten())
     #
-    #--- gmsh output for current time step
+    # --- gmsh output for current time step
     #
-    gmsh.gmshOutput_nodal(gmsh_out, "Residual",
-                          R.reshape(nNodes, dim), iStep, time)
-    gmsh.gmshOutput_nodal(gmsh_out, "Displacements",
-                          U.reshape((nNodes, dim)), iStep, time)
+    gmsh.gmshOutput_nodal(
+        gmsh_out, "Residual", R.reshape(nNodes, dim), iStep, time
+    )
+    gmsh.gmshOutput_nodal(
+        gmsh_out, "Displacements", U.reshape((nNodes, dim)), iStep, time
+    )
     gmsh.gmshOutput_element(gmsh_out, "Green-Lagrange strain", E, iStep, time)
     gmsh.gmshOutput_element(
-        gmsh_out, "Piola Kirchhoff I stress", P, iStep, time)
+        gmsh_out, "Piola Kirchhoff I stress", P, iStep, time
+    )
     gmsh.gmshOutput_element(
-        gmsh_out, "Euler-Almansi strain", euler, iStep, time)
+        gmsh_out, "Euler-Almansi strain", euler, iStep, time
+    )
     gmsh.gmshOutput_element(gmsh_out, "Hencky strain", hencky, iStep, time)
     gmsh.gmshOutput_element(gmsh_out, "Cauchy stress", sigma, iStep, time)
 

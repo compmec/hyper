@@ -37,4 +37,3 @@ def plot_mesh(mesh, label=None, color=None):
 
     plt.triplot(X_all, Y_all, all_connections, color=color, label=label)
     plt.axis("equal")
-
