@@ -49,7 +49,7 @@ def computeKnum(FEmodel, U, DU=1e-5):
 
 
 def test_Quad11StVenantKirchhoff():
-    inputfilename = "../msh/triangle-quad11.msh"
+    inputfilename = "tests/msh/triangle-quad11.msh"
     E = 210.e9
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
@@ -66,7 +66,7 @@ def test_Quad11StVenantKirchhoff():
 
 
 def test_Quad44StVenantKirchhoff():
-    inputfilename = "../msh/triangle-quad44.msh"
+    inputfilename = "tests/msh/triangle-quad44.msh"
     E = 210.e9
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
@@ -83,7 +83,7 @@ def test_Quad44StVenantKirchhoff():
 
 
 def test_Quad11NeoHookean():
-    inputfilename = "../msh/triangle-quad11.msh"
+    inputfilename = "tests/msh/triangle-quad11.msh"
     E = 210.e9
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
@@ -100,7 +100,7 @@ def test_Quad11NeoHookean():
 
 
 def test_Quad44NeoHookean():
-    inputfilename = "../msh/triangle-quad44.msh"
+    inputfilename = "tests/msh/triangle-quad44.msh"
     E = 210.e9
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)

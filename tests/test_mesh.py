@@ -34,7 +34,7 @@ def vector_fct(x):
 
 def test_ReadTri8():
     # Reading the mesh
-    inputfilename = "../msh/meshfile-tri8.msh"
+    inputfilename = "tests/msh/meshfile-tri8.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
@@ -46,7 +46,7 @@ def test_ReadTri8():
 
 def test_ReadTri14():
     # Reading the mesh
-    inputfilename = "../msh/triangle-tri14.msh"
+    inputfilename = "tests/msh/triangle-tri14.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
@@ -58,7 +58,7 @@ def test_ReadTri14():
 
 def test_ReadTri56():
     # Reading the mesh
-    inputfilename = "../msh/triangle-tri56.msh"
+    inputfilename = "tests/msh/triangle-tri56.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
@@ -69,7 +69,7 @@ def test_ReadTri56():
 
 def test_ReadQuad8():
     # Reading the mesh
-    inputfilename = "../msh/meshfile-quad8.msh"
+    inputfilename = "tests/msh/meshfile-quad8.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
@@ -81,7 +81,7 @@ def test_ReadQuad8():
 
 def test_ReadQuad11():
     # Reading the mesh
-    inputfilename = "../msh/triangle-quad11.msh"
+    inputfilename = "tests/msh/triangle-quad11.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
@@ -93,7 +93,7 @@ def test_ReadQuad11():
 
 def test_ReadQuad44():
     # Reading the mesh
-    inputfilename = "../msh/triangle-quad44.msh"
+    inputfilename = "tests/msh/triangle-quad44.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
@@ -109,7 +109,7 @@ def test_ReadQuad44():
 
 def test_PositionNodesTri8():
     # Reading the mesh
-    inputfilename = "../msh/meshfile-tri8.msh"
+    inputfilename = "tests/msh/meshfile-tri8.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
@@ -127,7 +127,7 @@ def test_PositionNodesTri8():
 
 
 def test_PositionNodesQuad8():
-    inputfilename = "../msh/meshfile-quad8.msh"
+    inputfilename = "tests/msh/meshfile-quad8.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
 
@@ -149,7 +149,7 @@ def test_PositionNodesQuad8():
 # ################################################
 
 def test_FieldsTri8():
-    inputfilename = "../msh/meshfile-tri8.msh"
+    inputfilename = "tests/msh/meshfile-tri8.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
     nNodes = mesh.nNodes()
@@ -184,7 +184,7 @@ def test_FieldsTri8():
 
 
 def test_FieldsQuad8():
-    inputfilename = "../msh/meshfile-quad8.msh"
+    inputfilename = "tests/msh/meshfile-quad8.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
     nNodes = mesh.nNodes()

@@ -21,8 +21,8 @@ found in the exercise.
 """
 
 import numpy as np
-import hyper.gmsh2 as gmsh
-import hyper.fem as fem
+from hyper import gmsh2 as gmsh
+from hyper import fem
 
 
 def vector_fct(x):
@@ -39,7 +39,7 @@ def vector_fct(x):
 
 
 def test_Tri14():
-    inputfilename = "../msh/triangle-tri14.msh"
+    inputfilename = "tests/msh/triangle-tri14.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
     nNodes = mesh.nNodes()
@@ -77,7 +77,7 @@ def test_Tri14():
 
 
 def test_Tri56():
-    inputfilename = "../msh/triangle-tri56.msh"
+    inputfilename = "tests/msh/triangle-tri56.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
     nNodes = mesh.nNodes()
@@ -115,7 +115,7 @@ def test_Tri56():
 
 
 def test_Quad11():
-    inputfilename = "../msh/triangle-quad11.msh"
+    inputfilename = "tests/msh/triangle-quad11.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
     nNodes = mesh.nNodes()
@@ -153,7 +153,7 @@ def test_Quad11():
 
 
 def test_Quad44():
-    inputfilename = "../msh/triangle-quad44.msh"
+    inputfilename = "tests/msh/triangle-quad44.msh"
     with open(inputfilename, "r") as meshfile:
         mesh = gmsh.gmshInput_mesh(meshfile)
     nNodes = mesh.nNodes()

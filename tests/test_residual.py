@@ -52,8 +52,8 @@ def writeFieldsOnGmshFile(fields, mesh, filename):
 
 
 def test_Tri56StVenantKirchhoff():
-    inputfilename = "../msh/triangle-tri56.msh"
-    outputfilename = "../msh/triangle-tri56-StVenant-val.msh"
+    inputfilename = "tests/msh/triangle-tri56.msh"
+    outputfilename = "tests/msh/triangle-tri56-StVenant-val.msh"
     E = 210.e9
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
@@ -74,8 +74,8 @@ def test_Tri56StVenantKirchhoff():
 
 
 def test_Quad44StVenantKirchhoff():
-    inputfilename = "../msh/triangle-quad44.msh"
-    outputfilename = "../msh/triangle-quad44-StVenant-val.msh"
+    inputfilename = "tests/msh/triangle-quad44.msh"
+    outputfilename = "tests/msh/triangle-quad44-StVenant-val.msh"
     E = 210.e9
     nu = 0.3
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
@@ -96,8 +96,8 @@ def test_Quad44StVenantKirchhoff():
 
 
 def test_Tri56NeoHookean():
-    inputfilename = "../msh/triangle-tri56.msh"
-    outputfilename = "../msh/triangle-tri56-NeoHookean-val.msh"
+    inputfilename = "tests/msh/triangle-tri56.msh"
+    outputfilename = "tests/msh/triangle-tri56-NeoHookean-val.msh"
     E = 10.e6
     nu = 0.45
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
@@ -118,8 +118,8 @@ def test_Tri56NeoHookean():
 
 
 def test_Quad44NeoHookean():
-    inputfilename = "../msh/triangle-tri56.msh"
-    outputfilename = "../msh/triangle-tri56-NeoHookean-val.msh"
+    inputfilename = "tests/msh/triangle-tri56.msh"
+    outputfilename = "tests/msh/triangle-tri56-NeoHookean-val.msh"
     E = 10.e6
     nu = 0.45
     material = elasticity.StVenantKirchhoffElasticity(E, nu)
